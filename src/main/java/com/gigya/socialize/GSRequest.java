@@ -683,7 +683,7 @@ public class GSRequest {
 	 */
 	public static String UrlEncode(String value) {
         try {
-            return URLEncoder.encode(value, "UTF-8").replace("+", "%20");
+            return URLEncoder.encode(value, "UTF-8").replace("+", "%20").replace("*", "%2A");
         } catch (Exception ex) {
             return null;
         }
