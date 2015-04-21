@@ -27,7 +27,7 @@ import java.util.zip.GZIPInputStream;
  *
  */
 public class GSRequest {
-	public static final String VERSION = "java_3.1.1";
+	public static final String VERSION = "java_3.1.2";
 
 	public static boolean ENABLE_CONNECTION_POOLING = true;
 
