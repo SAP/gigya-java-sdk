@@ -1,0 +1,115 @@
+GIGYA SOFTWARE DEVELOPMENT KIT LICENSE AGREEMENT
+
+Copyright (C) 2015 Gigya, Inc. All rights reserved.
+
+Note: By clicking “I AGREE,” downloading, installing, or using the SDK (as defined
+below), you agree to be legally bound to the terms of this license agreement (the
+“Agreement”) with Gigya, Inc., 2513 East Charleston Road, Suite 200, Mountain View, CA
+94043 (“Gigya”), and you represent and warrant that you have entered into a Gigya
+Member Agreement or other agreement with Gigya pursuant to which you have subscribed
+for Gigya’s customer identity management services, and which agreement is currently in
+effect. If you disagree with any of the terms in this Agreement, then do not use the
+SDK. The terms “you” and “Company” shall refer, jointly and severally, to you
+individually and any organization on whose behalf you act. The term “SDK” shall mean
+the Gigya software development kit, including any subsequent updates or upgrade made
+available to Company, and any associated documentation, software code, or other
+materials made available by Gigya.
+
+1. Intended Purpose. Gigya provides this SDK for the sole intended purpose of allowing
+Company to better integrate Gigya’s services with Company’s internal networks and/or
+systems (the “Company Integration”).
+
+2. Use Rights. Subject to Company’s compliance with the terms of this Agreement,
+Company may download, install, and use the SDK on its devices, networks or systems
+solely for use in connection with the Company Integration, as stated above in Section 1.
+
+3. Restrictions. Except as set forth above, Company may not (i) modify, distribute,
+sell, lease, rent, lend, or sublicense the SDK (or any copy or portion thereof), (ii)
+pre-install or embed applications created using this SDK on third-party devices, (iii)
+use the SDK to create, design, or develop anything other than Company Integration(s),
+(iv) modify, create derivative works of, reverse engineer, reverse compile, disassemble
+the SDK, except and only to the extent that applicable law expressly permits, despite
+this limitation (in which case Company shall provide Gigya with prior notification and
+the opportunity to respond), or (v) use the SDK in any manner to (a) circumvent any
+technical or licensing restrictions of Gigya services, (b) upload or otherwise transmit
+any material containing software viruses or other computer code, files or programs
+designed to interrupt, destroy, or limit the functionality of any software or hardware,
+(c) use the SDK or any of its features to invade the privacy of any person or otherwise
+violate any law, including, but not limited to, by usage of GPS functionality,
+location/tracking services, etc.
+
+4. Feedback. Company may, from time to time, provide feedback, suggestions or ideas to
+Gigya concerning the SDK or Gigya’s services including, without limitation, identifying
+potential errors and improvements (“Feedback”). Feedback which is provided by Company to
+Gigya in connection with this Agreement may be used by Gigya to improve or enhance
+future versions of the SDK or Gigya’s services and, accordingly, Gigya shall have a
+non-exclusive, perpetual, irrevocable, royalty-free, worldwide right and license to use,
+reproduce, disclose, sublicense, modify, make, have made, distribute, sell, offer for
+sale, display, perform, create derivative works, permit distribution and otherwise
+exploit such Feedback without restriction.
+
+5. Termination. This Agreement shall continue as long as Company is an active customer
+of Gigya and is in compliance with the terms specified herein, or until otherwise
+terminated. Either party may terminate this Agreement upon thirty days written notice if
+the other party is in material breach of any term of this Agreement. Company agrees,
+upon termination, to immediately destroy all copies of the SDK within the Company’s
+possession or control. The following Sections survive any termination of this Agreement:
+Sections 5, 6, 7, 8, 9 and 10.
+
+6. Ownership. The SDK is licensed, not sold. Gigya reserves all other rights not granted
+herein. The parties acknowledge that Gigya or its licensors retain complete ownership of
+all Intellectual Property Rights (as defined below) in and to the SDK. Nothing in this
+Agreement will be construed to transfer or assign any Intellectual Property Rights of
+either party to the other. "Intellectual Property Rights" means any and all rights under
+patent law, copyright law, trade secret law, trademark law, and any and all other
+proprietary rights.
+
+7. DISCLAIMER OF WARRANTIES. THE SDK IS PROVIDED “AS IS” WITHOUT ANY WARRANTIES OF ANY
+KIND. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, GIGYA DISCLAIMS ANY IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS, OR
+THAT THE SDK WILL BE ACCURATE, FREE OF ERRORS OR DEFECTS, FREE OF VIRUSES OR
+CONTAMINATION, UNINTERRUPTED OR THAT ANY DEFECTS WILL BE CORRECTED.
+
+8. LIMITATION OF LIABILITY. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO
+EVENT WILL GIGYA BE LIABLE FOR ANY LOST PROFITS OR BUSINESS OPPORTUNITIES, LOSS OF USE,
+BUSINESS INTERRUPTION, LOSS OF DATA, OR ANY OTHER INDIRECT, SPECIAL, INCIDENTAL, OR
+CONSEQUENTIAL DAMAGES RELATING TO THE SDK OR THIS AGREEMENT, UNDER ANY THEORY OF
+LIABILITY, WHETHER BASED IN CONTRACT, TORT, NEGLIGENCE, PRODUCT LIABILITY, OR OTHERWISE.
+GIGYA’S TOTAL LIABILITY RELATING TO THE SDK OR THIS AGREEMENT WILL NOT, IN ANY EVENT,
+EXCEED US$100.00. THE FOREGOING LIMITATIONS SHALL APPLY TO THE MAXIMUM EXTENT PERMITTED
+BY APPLICABLE LAW, REGARDLESS OF WHETHER GIGYA HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES AND REGARDLESS OF WHETHER ANY REMEDY FAILS OF ITS ESSENTIAL PURPOSE.
+
+9. INDEMNIFICATION. Company shall defend, indemnify, and hold harmless Gigya and its
+affiliates and their respective directors, officers, employees, contractors, agents, and
+end users (“Indemnified Parties”) against any third party claim, suit, or proceeding
+(“Claim”) and any liability, damage, loss, cost, and expenses (including attorney's
+fees) arising from the Claim (“Damages”) threatened or brought against any Indemnified
+Party  regarding (a) Company’s use of the SDK and (b) any Company Integration developed
+therefrom.
+
+10. General.
+
+10.1 Governing Law/Venue. This Agreement will be governed and interpreted in accordance
+with the laws of the State of California, without regard to conflict of law principles.
+Venue for any legal action is proper in the state courts of Santa Clara County,
+California, and the federal courts of the Northern District of California and each party
+expressly consents to venue and jurisdiction of those courts.
+
+10.2 Assignment. This Agreement may not be assigned in whole or in part, by operation of
+law or otherwise, by either party without the prior written consent of the other party.
+Notwithstanding the forgoing, Gigya may assign this Agreement in connection with a
+merger, a corporate reorganization, or the transfer of all or substantially all of the
+assets of the business to which this Agreement relates. This Agreement will bind and
+inure to the benefit of the parties and their permitted assigns.
+
+10.3 Entire Agreement. This Agreement constitutes the entire agreement between the
+parties pertaining to the subject matter hereof.
+
+10.4 Relationship of Parties. The relationship of the parties during the term of this
+Agreement is that of independent third parties.
+
+10.5 Severability. If any provision of this Agreement is found to be unenforceable or
+invalid, that provision shall be limited or eliminated to the minimum extent necessary
+so that this Agreement shall otherwise remain in full force and effect.
