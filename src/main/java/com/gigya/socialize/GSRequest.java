@@ -27,7 +27,7 @@ import java.util.zip.GZIPInputStream;
  *
  */
 public class GSRequest {
-	public static final String VERSION = "java_3.1.1";
+	public static final String VERSION = "java_3.1.2";
 
 	public static boolean ENABLE_CONNECTION_POOLING = true;
 
@@ -683,7 +683,7 @@ public class GSRequest {
 	 */
 	public static String UrlEncode(String value) {
         try {
-            return URLEncoder.encode(value, "UTF-8").replace("+", "%20");
+            return URLEncoder.encode(value, "UTF-8").replace("+", "%20").replace("*", "%2A");
         } catch (Exception ex) {
             return null;
         }
