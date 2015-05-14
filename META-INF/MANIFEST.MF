@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.9.2
-Created-By: 1.7.0_60-b19 (Oracle Corporation)
-Implementation-Vendor: Gigya inc.
-Implementation-Title: Gigya Socialize Java SDK
-Implementation-Version: 3.1.1
-

@@ -1,0 +1,1 @@
+ant -f gigya_build.xml
