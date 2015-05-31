@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
  * This class is used for sending a request to Gigya Service.
  */
 public class GSRequest {
-    public static final String VERSION = "java_3.1.2";
+    public static final String VERSION = "java_3.1.3";
 
     public static boolean ENABLE_CONNECTION_POOLING = true;
 
@@ -625,7 +625,7 @@ public class GSRequest {
      */
     public static String UrlEncode(String value) {
         try {
-            return URLEncoder.encode(value, "UTF-8").replace("+", "%20").replace("*", "%2A");
+            return URLEncoder.encode(value, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
         } catch (Exception ex) {
             return null;
         }
