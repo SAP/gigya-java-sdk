@@ -335,8 +335,7 @@ public class GSRequest {
 
 
         if (this.accessToken == null &&
-                (apiKey == null
-                        || (this.apiKey == null && this.userKey == null)
+                ((this.apiKey == null && this.userKey == null)
                         || (this.secretKey == null && this.userKey != null)))
             return new GSResponse(this.apiMethod, this.params, 400002, logger);
 
