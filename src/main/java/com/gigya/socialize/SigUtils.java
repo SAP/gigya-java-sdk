@@ -116,7 +116,7 @@ public class SigUtils {
     /**
      * This is a utility method for generating the cookie value of a dynamic session expiration cookie.
      * Use this method as part of implementing dynamic control over login session expiration, in conjunction with assigning the value '-1' to the sessionExpiration parameter of the client side login methods (i.e. showLoginUI / login).
-     * Learn more in the <a href="http://developers.gigya.com//010_Developer_Guide/57_Security#Control_Session_Expiration">Control Session Expiration</a> guide.
+     * Learn more in the <a href="http://developers.gigya.com/display/GD/Security+Guidelines#SecurityGuidelines-ControlSessionExpiration">Control Session Expiration</a> guide.
      *
      * @param glt_cookie       the login token received from Gigya after successful Login. Gigya stores the token in a cookie named: "glt_" + [Your API Key]
      * @param timeoutInSeconds how many seconds until session expiration. For example, if you would like the session to expire in 5 minutes set this parameter to 300.
