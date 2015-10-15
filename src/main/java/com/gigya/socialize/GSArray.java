@@ -231,6 +231,21 @@ public class GSArray implements Serializable, Iterable<Object> {
             return (GSArray) obj;
     }
 
+    /**
+     * Get Object value at index
+     *
+     * @param index
+     * @return
+     * @throws IndexOutOfBoundsException
+     */
+    public Object get(int index) {
+        Object obj = array.get(index);
+        if (obj == null)
+            return null;
+        else
+            return obj;
+    }
+
     @Override
     public String toString() {
         return toJsonString();

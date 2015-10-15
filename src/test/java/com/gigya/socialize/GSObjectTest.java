@@ -17,8 +17,22 @@ import java.util.Arrays;
 @RunWith(JUnit4.class)
 public class GSObjectTest extends TestCase {
 
-    final String KEY_NULL = "Null key";
-    final String VALUE_NULL = null;
+    final String KEY_STR_NULL = "String Null key";
+    final String VALUE_STR_NULL = null;
+    final String KEY_INTEGER_NULL = "Integer Null key";
+    final Integer VALUE_INTEGER_NULL = null;
+    final String KEY_LONG_NULL = "Long Null key";
+    final Long VALUE_LONG_NULL = null;
+    final String KEY_DOUBLE_NULL = "Double Null key";
+    final Double VALUE_DOUBLE_NULL = null;
+    final String KEY_BOOLEAN_NULL = "Boolean Null key";
+    final Boolean VALUE_BOOLEAN_NULL = null;
+    final String KEY_OBJ_NULL = "Object Null key";
+    final Object VALUE_OBJ_NULL = null;
+    final String KEY_GIGYA_OBJ_NULL = "GSObject Null key";
+    final GSObject VALUE_GIGYA_OBJ_NULL = null;
+    final String KEY_GIGYA_ARRAY_NULL = "GSArray Null key";
+    final GSArray VALUE_GIGYA_ARRAY_NULL = null;
     final String KEY_STR = "Str key";
     final String VALUE_STR = "Some String";
     final String KEY_INT = "Int key";
@@ -120,9 +134,32 @@ public class GSObjectTest extends TestCase {
 
     @Test
     public void testObjectToStringEqualsToExpectedString() throws JSONException {
+        gsObject.put(KEY_STR_NULL, VALUE_STR_NULL);
         gsObject.put(KEY_INT, VALUE_INT);
         gsObject.put(KEY_STR, VALUE_STR);
-        String expectedJSONString = String.format("{'%s':'%s', '%s':%d}", KEY_STR, VALUE_STR, KEY_INT, VALUE_INT);
+        gsObject.put(KEY_BOOLEAN, VALUE_BOOLEAN);
+        gsObject.put(KEY_INTEGER_NULL, VALUE_INTEGER_NULL);
+        gsObject.put(KEY_LONG_NULL, VALUE_LONG_NULL);
+        gsObject.put(KEY_DOUBLE_NULL, VALUE_DOUBLE_NULL);
+        gsObject.put(KEY_BOOLEAN_NULL, VALUE_BOOLEAN_NULL);
+        gsObject.put(KEY_OBJ_NULL, VALUE_OBJ_NULL);
+        gsObject.put(KEY_GIGYA_OBJ_NULL, VALUE_GIGYA_OBJ_NULL);
+        gsObject.put(KEY_GIGYA_ARRAY_NULL, VALUE_GIGYA_ARRAY_NULL);
+
+        String expectedJSONString = String.format("{'%s':%s, '%s':'%s', '%s':%d, '%s':%s, '%s':%s, '%s':%s, '%s':%s, '%s':%s, '%s':%s, '%s':%s, '%s':%s}",
+                KEY_STR_NULL, VALUE_STR_NULL,
+                KEY_STR, VALUE_STR,
+                KEY_INT, VALUE_INT,
+                KEY_BOOLEAN, VALUE_BOOLEAN,
+                KEY_INTEGER_NULL, VALUE_INTEGER_NULL,
+                KEY_LONG_NULL, VALUE_LONG_NULL,
+                KEY_DOUBLE_NULL, VALUE_DOUBLE_NULL,
+                KEY_BOOLEAN_NULL, VALUE_BOOLEAN_NULL,
+                KEY_OBJ_NULL, VALUE_GIGYA_OBJ_NULL,
+                KEY_GIGYA_OBJ_NULL, VALUE_GIGYA_OBJ_NULL,
+                KEY_GIGYA_ARRAY_NULL, VALUE_GIGYA_ARRAY_NULL
+        );
+
         assertEquals(gsObject.toJsonString(), gsObject.toString());
         JSONAssert.assertEquals(new JSONObject(gsObject.toJsonString()), new JSONObject(expectedJSONString), JSONCompareMode.STRICT);
     }
@@ -138,10 +175,17 @@ public class GSObjectTest extends TestCase {
         gsObject.put(KEY_LONG_OBJ, VALUE_LONG_OBJ);
         gsObject.put(KEY_DOUBLE, VALUE_DOUBLE);
         gsObject.put(KEY_DOUBLE_OBJ, VALUE_DOUBLE_OBJ);
-        gsObject.put(KEY_NULL, VALUE_NULL);
         gsObject.put(KEY_OBJ, VALUE_OBJ);
         gsObject.put(KEY_GIGYA_OBJ, VALUE_GIGYA_OBJ);
         gsObject.put(KEY_GIGYA_ARRAY, VALUE_GIGYA_ARRAY);
+        gsObject.put(KEY_STR_NULL, VALUE_STR_NULL);
+        gsObject.put(KEY_INTEGER_NULL, VALUE_INTEGER_NULL);
+        gsObject.put(KEY_LONG_NULL, VALUE_LONG_NULL);
+        gsObject.put(KEY_DOUBLE_NULL, VALUE_DOUBLE_NULL);
+        gsObject.put(KEY_BOOLEAN_NULL, VALUE_BOOLEAN_NULL);
+        gsObject.put(KEY_OBJ_NULL, VALUE_OBJ_NULL);
+        gsObject.put(KEY_GIGYA_OBJ_NULL, VALUE_GIGYA_OBJ_NULL);
+        gsObject.put(KEY_GIGYA_ARRAY_NULL, VALUE_GIGYA_ARRAY_NULL);
 
         assertEquals(gsObject.getString(KEY_STR), VALUE_STR);
         assertEquals(gsObject.getString(KEY_STR, ""), VALUE_STR);
@@ -161,13 +205,23 @@ public class GSObjectTest extends TestCase {
         assertEquals(gsObject.getDouble(KEY_DOUBLE, 1.23), VALUE_DOUBLE);
         assertEquals(gsObject.getDouble(KEY_DOUBLE_OBJ), VALUE_DOUBLE_OBJ);
         assertEquals(gsObject.getDouble(KEY_DOUBLE_OBJ, 1.23), VALUE_DOUBLE_OBJ);
-        assertEquals(gsObject.get(KEY_NULL), VALUE_NULL);
         assertEquals(gsObject.get(KEY_OBJ), VALUE_OBJ);
         assertEquals(gsObject.get(KEY_OBJ, null), VALUE_OBJ);
         assertEquals(gsObject.getObject(KEY_GIGYA_OBJ), VALUE_GIGYA_OBJ);
         assertEquals(gsObject.getObject(KEY_GIGYA_OBJ, null), VALUE_GIGYA_OBJ);
         assertEquals(gsObject.getArray(KEY_GIGYA_ARRAY), VALUE_GIGYA_ARRAY);
         assertEquals(gsObject.getArray(KEY_GIGYA_ARRAY, null), VALUE_GIGYA_ARRAY);
+        assertEquals(gsObject.get(KEY_STR_NULL), VALUE_STR_NULL);
+        assertEquals(gsObject.getString(KEY_STR_NULL), VALUE_STR_NULL);
+        assertEquals(gsObject.get(KEY_INTEGER_NULL), VALUE_INTEGER_NULL);
+        assertEquals(gsObject.get(KEY_LONG_NULL), VALUE_LONG_NULL);
+        assertEquals(gsObject.get(KEY_DOUBLE_NULL), VALUE_DOUBLE_NULL);
+        assertEquals(gsObject.get(KEY_BOOLEAN_NULL), VALUE_BOOLEAN_NULL);
+        assertEquals(gsObject.get(KEY_OBJ_NULL), VALUE_OBJ_NULL);
+        assertEquals(gsObject.get(KEY_GIGYA_OBJ_NULL), VALUE_GIGYA_OBJ_NULL);
+        assertEquals(gsObject.getObject(KEY_GIGYA_OBJ_NULL), VALUE_GIGYA_OBJ_NULL);
+        assertEquals(gsObject.get(KEY_GIGYA_ARRAY_NULL), VALUE_GIGYA_ARRAY_NULL);
+        assertEquals(gsObject.getArray(KEY_GIGYA_ARRAY_NULL), VALUE_GIGYA_ARRAY_NULL);
     }
 
     @Test
