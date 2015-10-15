@@ -14,7 +14,14 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 @RunWith(JUnit4.class)
 public class GSArrayTest extends TestCase {
 
-    final String VALUE_NULL = null;
+    final String VALUE_STR_NULL = null;
+    final Integer VALUE_INTEGER_NULL = null;
+    final Long VALUE_LONG_NULL = null;
+    final Double VALUE_DOUBLE_NULL = null;
+    final Boolean VALUE_BOOLEAN_NULL = null;
+    final Object VALUE_OBJ_NULL = null;
+    final GSObject VALUE_GIGYA_OBJ_NULL = null;
+    final GSArray VALUE_GIGYA_ARRAY_NULL = null;
     final String VALUE_STR = "Some String";
     final int VALUE_INT = 222;
     final Integer VALUE_INTEGER = 333;
@@ -72,9 +79,32 @@ public class GSArrayTest extends TestCase {
 
     @Test
     public void testArrayToStringEqualsToExpectedString() throws JSONException {
+        gsArray.add(VALUE_STR_NULL);
         gsArray.add(VALUE_INT);
         gsArray.add(VALUE_STR);
-        String expectedJSONString = String.format("[%d, '%s']", VALUE_INT, VALUE_STR);
+        gsArray.add(VALUE_BOOLEAN);
+        gsArray.add(VALUE_INTEGER_NULL);
+        gsArray.add(VALUE_LONG_NULL);
+        gsArray.add(VALUE_DOUBLE_NULL);
+        gsArray.add(VALUE_BOOLEAN_NULL);
+        gsArray.add(VALUE_OBJ_NULL);
+        gsArray.add(VALUE_GIGYA_OBJ_NULL);
+        gsArray.add(VALUE_GIGYA_ARRAY_NULL);
+
+        String expectedJSONString = String.format("[%s, %d, '%s', %s, %s, %s, %s, %s, %s, %s, %s]",
+                VALUE_STR_NULL,
+                VALUE_INT,
+                VALUE_STR,
+                VALUE_BOOLEAN,
+                VALUE_INTEGER_NULL,
+                VALUE_LONG_NULL,
+                VALUE_DOUBLE_NULL,
+                VALUE_BOOLEAN_NULL,
+                VALUE_OBJ_NULL,
+                VALUE_GIGYA_OBJ_NULL,
+                VALUE_GIGYA_ARRAY_NULL
+        );
+
         assertEquals(gsArray.toJsonString(), gsArray.toString());
         JSONAssert.assertEquals(new JSONArray(gsArray.toJsonString()), new JSONArray(expectedJSONString), JSONCompareMode.STRICT);
     }
@@ -90,9 +120,16 @@ public class GSArrayTest extends TestCase {
         gsArray.add(VALUE_LONG_OBJ);
         gsArray.add(VALUE_DOUBLE);
         gsArray.add(VALUE_DOUBLE_OBJ);
-        gsArray.add(VALUE_NULL);
         gsArray.add(VALUE_GIGYA_OBJ);
         gsArray.add(VALUE_GIGYA_ARRAY);
+        gsArray.add(VALUE_STR_NULL);
+        gsArray.add(VALUE_INTEGER_NULL);
+        gsArray.add(VALUE_LONG_NULL);
+        gsArray.add(VALUE_DOUBLE_NULL);
+        gsArray.add(VALUE_BOOLEAN_NULL);
+        gsArray.add(VALUE_OBJ_NULL);
+        gsArray.add(VALUE_GIGYA_OBJ_NULL);
+        gsArray.add(VALUE_GIGYA_ARRAY_NULL);
 
         assertEquals(gsArray.getString(0), VALUE_STR);
         assertEquals(gsArray.getBool(1), VALUE_BOOLEAN);
@@ -103,9 +140,16 @@ public class GSArrayTest extends TestCase {
         assertEquals(gsArray.getLong(6), VALUE_LONG_OBJ.longValue());
         assertEquals(gsArray.getDouble(7), VALUE_DOUBLE);
         assertEquals(gsArray.getDouble(8), VALUE_DOUBLE_OBJ);
-        assertEquals(gsArray.getString(9), VALUE_NULL);
-        assertEquals(gsArray.getObject(10), VALUE_GIGYA_OBJ);
-        assertEquals(gsArray.getArray(11), VALUE_GIGYA_ARRAY);
+        assertEquals(gsArray.getObject(9), VALUE_GIGYA_OBJ);
+        assertEquals(gsArray.getArray(10), VALUE_GIGYA_ARRAY);
+        assertEquals(gsArray.getString(11), VALUE_STR_NULL);
+        assertEquals(gsArray.get(12), VALUE_INTEGER_NULL);
+        assertEquals(gsArray.get(13), VALUE_LONG_NULL);
+        assertEquals(gsArray.get(14), VALUE_DOUBLE_NULL);
+        assertEquals(gsArray.get(15), VALUE_BOOLEAN_NULL);
+        assertEquals(gsArray.get(16), VALUE_OBJ_NULL);
+        assertEquals(gsArray.get(17), VALUE_GIGYA_OBJ_NULL);
+        assertEquals(gsArray.get(18), VALUE_GIGYA_ARRAY_NULL);
     }
 
     @Test
