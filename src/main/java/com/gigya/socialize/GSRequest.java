@@ -417,9 +417,12 @@ public class GSRequest {
                 req.append(key);
                 req.append('=');
                 req.append(UrlEncode(params.getString(key, null)));
+                req.append('&');
             }
-            req.append('&');
         }
+        if (req.length() > 0)
+            req.deleteCharAt(req.length() - 1);
+
         return req.toString();
     }
 
@@ -433,9 +436,12 @@ public class GSRequest {
                 req.append(key);
                 req.append('=');
                 req.append(val);
+                req.append('&');
             }
-            req.append('&');
         }
+        if (req.length() > 0)
+            req.deleteCharAt(req.length() - 1);
+
         return req.toString();
     }
 
