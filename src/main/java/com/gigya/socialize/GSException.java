@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2011 Gigya, Inc.
- * Version java_3.0
- */
 package com.gigya.socialize;
 
 /**

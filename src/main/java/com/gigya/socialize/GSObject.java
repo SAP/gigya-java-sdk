@@ -1,15 +1,15 @@
-/*
- * Copyright (C) 2011 Gigya, Inc.
- * Version java_3.0
- */
-
 package com.gigya.socialize;
 
-import com.gigya.json.JSONArray;
-import com.gigya.json.JSONException;
-import com.gigya.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -71,7 +71,7 @@ public class GSObject implements Serializable {
      * @param value a string value to be associated with the specified key
      */
     public void put(String key, String value) {
-        if (key == null || value == null) return;
+        if (key == null) return;
         map.put(key, value);
     }
 
@@ -220,7 +220,7 @@ public class GSObject implements Serializable {
         if (obj == null)
             throw new NullPointerException(NO_KEY_EX + key);
 
-        if (obj.getClass().isAssignableFrom(int.class)) {
+        if (obj.getClass().isAssignableFrom(Integer.class)) {
             return (Integer) obj;
         } else {
             return Integer.parseInt(getString(key));
@@ -258,7 +258,7 @@ public class GSObject implements Serializable {
         if (obj == null)
             throw new NullPointerException(NO_KEY_EX + key);
 
-        if (obj.getClass().isAssignableFrom(long.class)) {
+        if (obj.getClass().isAssignableFrom(Long.class)) {
             return (Long) obj;
         } else {
             return Long.parseLong(getString(key));
@@ -274,7 +274,7 @@ public class GSObject implements Serializable {
      */
     public double getDouble(String key, double defaultValue) {
         try {
-            return getLong(key);
+            return getDouble(key);
         } catch (Exception ex) {
             return defaultValue;
         }
@@ -295,7 +295,7 @@ public class GSObject implements Serializable {
         if (obj == null)
             throw new NullPointerException(NO_KEY_EX + key);
 
-        if (obj.getClass().isAssignableFrom(double.class)) {
+        if (obj.getClass().isAssignableFrom(Double.class)) {
             return (Double) obj;
         } else {
             return Double.parseDouble(getString(key));
@@ -362,6 +362,7 @@ public class GSObject implements Serializable {
     public GSObject getObject(String key) throws GSKeyNotFoundException {
         if (!map.containsKey(key))
             throw new GSKeyNotFoundException(NO_KEY_EX + key);
+
         Object obj = map.get(key);
         if (obj == null)
             return null;
@@ -395,6 +396,7 @@ public class GSObject implements Serializable {
     public GSArray getArray(String key) throws GSKeyNotFoundException {
         if (!map.containsKey(key))
             throw new GSKeyNotFoundException(NO_KEY_EX + key);
+
         Object obj = map.get(key);
         if (obj == null)
             return null;
@@ -414,6 +416,7 @@ public class GSObject implements Serializable {
     public Object get(String key) throws GSKeyNotFoundException {
         if (!map.containsKey(key))
             throw new GSKeyNotFoundException(NO_KEY_EX + key);
+
         Object obj = map.get(key);
         if (obj == null)
             return null;
@@ -546,12 +549,17 @@ public class GSObject implements Serializable {
     protected JSONObject toJsonObject() throws JSONException {
         JSONObject json = new JSONObject();
         String[] keys = this.getKeys();
-        Object val;
         for (String key : keys) {
-            val = map.get(key);
-            if (val != null && val.getClass() == GSObject.class) {
+            Object val = map.get(key);
+            if (val == null) {
+                json.put(key, JSONObject.NULL);
+                continue;
+            }
+
+            Class objClass = val.getClass();
+            if (objClass == GSObject.class) {
                 json.put(key, ((GSObject) val).toJsonObject());
-            } else if (val != null && val.getClass() == GSArray.class) {
+            } else if (objClass == GSArray.class) {
                 try {
                     GSArray array = getArray(key);
                     json.put(key, array.toJsonArray());
@@ -571,39 +579,33 @@ public class GSObject implements Serializable {
         while (keys.hasNext()) {
             key = keys.next().toString();
             Object value = jo.get(key);
-            if (value == null) {
+
+            if (jo.isNull(key)) {
                 parentObj.put(key, (String) null);
             }
-            if (value.getClass().equals(String.class)) {
+            else if (value.getClass().equals(String.class)) {
                 parentObj.put(key, (String) value);
             }
-            if (value.getClass().equals(Boolean.class)) {
+            else if (value.getClass().equals(Boolean.class)) {
                 parentObj.put(key, (Boolean) value);
             }
-            if (value.getClass().equals(Double.class)) {
+            else if (value.getClass().equals(Double.class)) {
                 parentObj.put(key, (Double) value);
             }
-            if (value.getClass().equals(Integer.class)) {
+            else if (value.getClass().equals(Integer.class)) {
                 parentObj.put(key, (Integer) value);
             }
-            if (value.getClass().equals(Long.class)) {
+            else if (value.getClass().equals(Long.class)) {
                 parentObj.put(key, (Long) value);
             }
-            if (value.getClass().equals(JSONObject.class)) {
+            else if (value.getClass().equals(JSONObject.class)) {
                 JSONObject subJo = (JSONObject) value;
                 GSObject childObj = new GSObject();
                 processJsonObject(subJo, childObj);
                 parentObj.put(key, childObj);
             }
-            if (value.getClass().equals(JSONArray.class)) {
+            else if (value.getClass().equals(JSONArray.class)) {
                 JSONArray jsonArray = (JSONArray) value;
-                /*
-				int size = jsonArray.length();
-				GSObject[] childArray = new GSObject[size];
-				for(int i=0; i<size; i++)
-				{
-					childArray[i] = new GSObject(jsonArray.getJSONObject(i));
-				}*/
                 parentObj.put(key, new GSArray(jsonArray));
             }
         }
