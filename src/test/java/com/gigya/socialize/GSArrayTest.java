@@ -47,7 +47,7 @@ public class GSArrayTest extends TestCase {
 
     @Test
     public void testConstructWithJsonStringCreatesArrayWithSameData() throws Exception {
-        String expectedJSONString = String.format("['%s', %d, '%s', '%s']", VALUE_STR, VALUE_INT, VALUE_GIGYA_OBJ.toJsonString(), VALUE_GIGYA_ARRAY.toJsonArray());
+        String expectedJSONString = String.format("[null, '%s', %d, null, '%s', '%s', null]", VALUE_STR, VALUE_INT, VALUE_GIGYA_OBJ.toJsonString(), VALUE_GIGYA_ARRAY.toJsonArray());
         JSONArray expectedJSONArray = new JSONArray(expectedJSONString);
         gsArray = new GSArray(expectedJSONString);
         JSONAssert.assertEquals(gsArray.toJsonArray(), expectedJSONArray, JSONCompareMode.STRICT);
@@ -55,7 +55,7 @@ public class GSArrayTest extends TestCase {
 
     @Test
     public void testConstructWithJsonDataCreatesArrayWithSameData() throws Exception {
-        String expectedJSONString = String.format("['%s', %d, '%s', '%s']", VALUE_STR, VALUE_INT, VALUE_GIGYA_OBJ.toJsonString(), VALUE_GIGYA_ARRAY.toJsonArray());
+        String expectedJSONString = String.format("[null, '%s', %d, null, '%s', '%s', null]", VALUE_STR, VALUE_INT, VALUE_GIGYA_OBJ.toJsonString(), VALUE_GIGYA_ARRAY.toJsonArray());
         JSONArray expectedJSONArray = new JSONArray(expectedJSONString);
         gsArray = new GSArray(expectedJSONArray);
         JSONAssert.assertEquals(gsArray.toJsonArray(), expectedJSONArray, JSONCompareMode.STRICT);
