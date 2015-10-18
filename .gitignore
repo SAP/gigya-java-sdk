@@ -1,4 +1,11 @@
-.idea/
+# Built application files
 build/
 dist/
+
+# IntelliJ IDEA
+.idea/
 *.iml
+
+# Gradle
+.gradle/
+settings.gradle
