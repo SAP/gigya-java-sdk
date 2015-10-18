@@ -72,7 +72,7 @@ public class GSObjectTest extends TestCase {
 
     @Test
     public void testConstructWithJsonStringCreatesObjectWithSameData() throws Exception {
-        String expectedJSONString = String.format("{'%s':'%s', '%s':%d, '%s':'%s', '%s':'%s'}", KEY_STR, VALUE_STR, KEY_INT, VALUE_INT, KEY_GIGYA_OBJ, VALUE_GIGYA_OBJ.toJsonString(), KEY_GIGYA_ARRAY, VALUE_GIGYA_ARRAY.toJsonArray());
+        String expectedJSONString = String.format("{'null1':null, '%s':'%s', '%s':%d, 'null2':null, '%s':'%s', '%s':'%s', 'null3':null}", KEY_STR, VALUE_STR, KEY_INT, VALUE_INT, KEY_GIGYA_OBJ, VALUE_GIGYA_OBJ.toJsonString(), KEY_GIGYA_ARRAY, VALUE_GIGYA_ARRAY.toJsonArray());
         JSONObject expectedJSONObject = new JSONObject(expectedJSONString);
         gsObject = new GSObject(expectedJSONString);
         JSONAssert.assertEquals(gsObject.toJsonObject(), expectedJSONObject, JSONCompareMode.STRICT);
@@ -80,7 +80,7 @@ public class GSObjectTest extends TestCase {
 
     @Test
     public void testConstructWithJsonDataCreatesObjectWithSameData() throws Exception {
-        String expectedJSONString = String.format("{'%s':'%s', '%s':%d, '%s':'%s', '%s':'%s'}", KEY_STR, VALUE_STR, KEY_INT, VALUE_INT, KEY_GIGYA_OBJ, VALUE_GIGYA_OBJ.toJsonString(), KEY_GIGYA_ARRAY, VALUE_GIGYA_ARRAY.toJsonArray());
+        String expectedJSONString = String.format("{'null1':null, '%s':'%s', '%s':%d, 'null2':null, '%s':'%s', '%s':'%s', 'null3':null}", KEY_STR, VALUE_STR, KEY_INT, VALUE_INT, KEY_GIGYA_OBJ, VALUE_GIGYA_OBJ.toJsonString(), KEY_GIGYA_ARRAY, VALUE_GIGYA_ARRAY.toJsonArray());
         JSONObject expectedJSONObject = new JSONObject(expectedJSONString);
         gsObject = new GSObject(expectedJSONObject);
         JSONAssert.assertEquals(gsObject.toJsonObject(), expectedJSONObject, JSONCompareMode.STRICT);
