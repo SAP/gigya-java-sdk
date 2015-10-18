@@ -1,6 +1,3 @@
-/*
- * Version java_3.0
- */
 package com.gigya.socialize;
 
 import java.util.Arrays;
