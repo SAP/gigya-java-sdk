@@ -1,12 +1,8 @@
-/*
- * Copyright (C) 2011 Gigya, Inc.
- * Version java_3.0
- */
 package com.gigya.socialize;
 
-import com.gigya.json.JSONArray;
-import com.gigya.json.JSONException;
-import com.gigya.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -73,16 +69,14 @@ public class GSArray implements Serializable, Iterable<Object> {
 
     /**
      * return the array's length
+     *
+     * @return
      */
     public int length() {
         return this.array.size();
     }
 
     public void add(String val) {
-        array.add(val);
-    }
-
-    public void add(boolean val) {
         array.add(val);
     }
 
@@ -94,6 +88,14 @@ public class GSArray implements Serializable, Iterable<Object> {
         array.add(val);
     }
 
+    public void add(double val) {
+        array.add(val);
+    }
+
+    public void add(boolean val) {
+        array.add(val);
+    }
+
     public void add(GSObject val) {
         array.add(val);
     }
@@ -102,7 +104,7 @@ public class GSArray implements Serializable, Iterable<Object> {
         array.add(val);
     }
 
-    public void add(double val) {
+    public void add(Object val) {
         array.add(val);
     }
 
@@ -110,6 +112,7 @@ public class GSArray implements Serializable, Iterable<Object> {
      * Get string value at index
      *
      * @param index
+     * @return
      */
     public String getString(int index) {
         Object obj = array.get(index);
@@ -123,6 +126,7 @@ public class GSArray implements Serializable, Iterable<Object> {
      * Get bool value at index
      *
      * @param index
+     * @return
      * @throws NullPointerException      if value is null
      * @throws IndexOutOfBoundsException
      */
@@ -142,6 +146,7 @@ public class GSArray implements Serializable, Iterable<Object> {
      * Get int value at index
      *
      * @param index
+     * @return
      * @throws NullPointerException      if value is null
      * @throws IndexOutOfBoundsException
      */
@@ -150,7 +155,7 @@ public class GSArray implements Serializable, Iterable<Object> {
         if (obj == null)
             throw new NullPointerException(NO_INDEX_EX + index);
 
-        if (obj.getClass().isAssignableFrom(int.class)) {
+        if (obj.getClass().isAssignableFrom(Integer.class)) {
             return (Integer) obj;
         } else {
             return Integer.parseInt(getString(index));
@@ -161,6 +166,7 @@ public class GSArray implements Serializable, Iterable<Object> {
      * Get long value at index
      *
      * @param index
+     * @return
      * @throws NullPointerException      if value is null
      * @throws IndexOutOfBoundsException
      */
@@ -169,7 +175,7 @@ public class GSArray implements Serializable, Iterable<Object> {
         if (obj == null)
             throw new NullPointerException(NO_INDEX_EX + index);
 
-        if (obj.getClass().isAssignableFrom(long.class)) {
+        if (obj.getClass().isAssignableFrom(Long.class)) {
             return (Long) obj;
         } else {
             return Long.parseLong(getString(index));
@@ -180,6 +186,7 @@ public class GSArray implements Serializable, Iterable<Object> {
      * Get double value at index
      *
      * @param index
+     * @return
      * @throws NullPointerException      if value is null
      * @throws IndexOutOfBoundsException
      */
@@ -188,7 +195,7 @@ public class GSArray implements Serializable, Iterable<Object> {
         if (obj == null)
             throw new NullPointerException(NO_INDEX_EX + index);
 
-        if (obj.getClass().isAssignableFrom(double.class)) {
+        if (obj.getClass().isAssignableFrom(Double.class)) {
             return (Double) obj;
         } else {
             return Double.parseDouble(getString(index));
@@ -199,6 +206,7 @@ public class GSArray implements Serializable, Iterable<Object> {
      * Get GSObject value at index
      *
      * @param index
+     * @return
      * @throws IndexOutOfBoundsException
      */
     public GSObject getObject(int index) {
@@ -213,7 +221,7 @@ public class GSArray implements Serializable, Iterable<Object> {
      * Get GSArray value at index
      *
      * @param index
-     * @throws NullPointerException if value is null
+     * @throws IndexOutOfBoundsException
      */
     public GSArray getArray(int index) {
         Object obj = array.get(index);
@@ -221,6 +229,21 @@ public class GSArray implements Serializable, Iterable<Object> {
             return null;
         else
             return (GSArray) obj;
+    }
+
+    /**
+     * Get Object value at index
+     *
+     * @param index
+     * @return
+     * @throws IndexOutOfBoundsException
+     */
+    public Object get(int index) {
+        Object obj = array.get(index);
+        if (obj == null)
+            return null;
+        else
+            return obj;
     }
 
     @Override
@@ -238,6 +261,7 @@ public class GSArray implements Serializable, Iterable<Object> {
         }
     }
 
+    @Override
     public Iterator<Object> iterator() {
         return array.iterator();
     }
@@ -245,9 +269,15 @@ public class GSArray implements Serializable, Iterable<Object> {
     protected JSONArray toJsonArray() throws JSONException {
         JSONArray jsonArray = new JSONArray();
         for (Object obj : array) {
-            if (obj.getClass() == GSObject.class) {
+            if (obj == null) {
+                jsonArray.put(JSONObject.NULL);
+                continue;
+            }
+
+            Class objClass = obj.getClass();
+            if (objClass == GSObject.class) {
                 jsonArray.put(((GSObject) obj).toJsonObject());
-            } else if (obj.getClass() == GSArray.class) {
+            } else if (objClass == GSArray.class) {
                 try {
                     GSArray arrayObj = (GSArray) obj;
                     jsonArray.put(arrayObj.toJsonArray());

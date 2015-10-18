@@ -1,4 +1,4 @@
-package com.gigya.json;
+package org.json;
 
 /*
 Copyright (c) 2008 JSON.org
