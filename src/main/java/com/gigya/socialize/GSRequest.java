@@ -412,13 +412,11 @@ public class GSRequest {
         StringBuilder req = new StringBuilder();
         String val;
         for (String key : params.getKeys()) {
-            val = params.getString(key, null);
-            if (val != null) {
-                req.append(key);
-                req.append('=');
-                req.append(UrlEncode(params.getString(key, null)));
-                req.append('&');
-            }
+            val = UrlEncode(params.getString(key, null));
+            req.append(key);
+            req.append('=');
+            req.append(val);
+            req.append('&');
         }
         if (req.length() > 0)
             req.deleteCharAt(req.length() - 1);
@@ -432,12 +430,10 @@ public class GSRequest {
         String val;
         for (String key : params.getKeys()) {
             val = urlEncodedParam(key);
-            if (val != null) {
-                req.append(key);
-                req.append('=');
-                req.append(val);
-                req.append('&');
-            }
+            req.append(key);
+            req.append('=');
+            req.append(val);
+            req.append('&');
         }
         if (req.length() > 0)
             req.deleteCharAt(req.length() - 1);
@@ -629,6 +625,9 @@ public class GSRequest {
      * @return the URL encoded string
      */
     public static String UrlEncode(String value) {
+        if (value == null)
+            return null;
+
         try {
             return URLEncoder.encode(value, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
         } catch (Exception ex) {
