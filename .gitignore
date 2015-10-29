@@ -2,9 +2,9 @@
 build/
 
 # IntelliJ IDEA
-.idea/
-*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
 
 # Gradle
 .gradle/
-settings.gradle

@@ -47,6 +47,6 @@ public class GSRequestTest extends TestCase {
         params.put("a", URL_DECODED_STRING);
         params.put("b", (Object) null);
         params.put("c", URL_COMPLIANT_STRING);
-        assertEquals(GSRequest.buildQS(params), "a=" + URL_ENCODED_STRING + "&c=" + URL_COMPLIANT_STRING);
+        assertEquals(GSRequest.buildQS(params), "a=" + URL_ENCODED_STRING + "&b=null" + "&c=" + URL_COMPLIANT_STRING);
     }
 }
