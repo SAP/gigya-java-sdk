@@ -1,8 +1,3 @@
-/*
- * Copyright (C) 2011 Gigya, Inc.
- * Version java_3.0
- */
-
 package com.gigya.socialize;
 
 import javax.crypto.Mac;
@@ -19,7 +14,7 @@ import java.util.Date;
 public class SigUtils {
 
     /**
-     * Use this method to verify the authenticity of a <a href="http://wiki.gigya.com/030_API_reference/020_REST_API/socialize.getUserInfo">socialize.getUserInfo</a> API method response, to make sure it is in fact originating from Gigya, and prevent fraud.
+     * Use this method to verify the authenticity of a <a href="http://developers.gigya.com/display/GD/socialize.getUserInfo+REST">socialize.getUserInfo</a> API method response, to make sure it is in fact originating from Gigya, and prevent fraud.
      * The "socialize.getUserInfo" API method response data include the following fields: UID, signatureTimestamp (a timestamp) and UIDSignature (a cryptographic signature).
      * Pass these fields as the corresponding parameters of this method, along with your partner's "<strong>Secret Key</strong>". Your secret key (provided in BASE64 encoding) is located at the bottom of the <a href="http://www.gigya.com/site/partners/wfsocapi.aspx#&amp;&amp;userstate=SiteSetup">Site Setup</a> page on Gigya's website.
      * The return value of the method indicates if the signature is valid (thus, originating from Gigya) or not.
@@ -35,7 +30,7 @@ public class SigUtils {
     }
 
     /**
-     * Use this method to verify the authenticity of a <a href="http://wiki.gigya.com/030_API_reference/020_REST_API/socialize.getFriendsInfo">socialize.getFriendsInfo</a> API method response, to make sure it is in fact originating from Gigya, and prevent fraud.
+     * Use this method to verify the authenticity of a <a href="http://developers.gigya.com/display/GD/socialize.getFriendsInfo+REST">socialize.getFriendsInfo</a> API method response, to make sure it is in fact originating from Gigya, and prevent fraud.
      * The "socialize.getFriendsInfo" API method response data include the following fields: UID, signatureTimestamp (a timestamp) and friendshipSignature (a cryptographic signature).
      * Pass these fields as the corresponding parameters of this method, along with your partner's "<strong>Secret Key</strong>". Your secret key (provided in BASE64 encoding) is located at the bottom of the <a href="http://www.gigya.com/site/partners/wfsocapi.aspx#&amp;&amp;userstate=SiteSetup">Site Setup</a> page on Gigya's website.
      * The return value of the method indicates if the signature is valid (thus, originating from Gigya) or not.
@@ -116,7 +111,7 @@ public class SigUtils {
     /**
      * This is a utility method for generating the cookie value of a dynamic session expiration cookie.
      * Use this method as part of implementing dynamic control over login session expiration, in conjunction with assigning the value '-1' to the sessionExpiration parameter of the client side login methods (i.e. showLoginUI / login).
-     * Learn more in the <a href="http://developers.gigya.com//010_Developer_Guide/57_Security#Control_Session_Expiration">Control Session Expiration</a> guide.
+     * Learn more in the <a href="http://developers.gigya.com/display/GD/Security+Guidelines#SecurityGuidelines-ControlSessionExpiration">Control Session Expiration</a> guide.
      *
      * @param glt_cookie       the login token received from Gigya after successful Login. Gigya stores the token in a cookie named: "glt_" + [Your API Key]
      * @param timeoutInSeconds how many seconds until session expiration. For example, if you would like the session to expire in 5 minutes set this parameter to 300.
