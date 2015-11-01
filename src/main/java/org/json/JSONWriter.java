@@ -1,4 +1,4 @@
-package com.gigya.json;
+package org.json;
 
 import java.io.IOException;
 import java.io.Writer;

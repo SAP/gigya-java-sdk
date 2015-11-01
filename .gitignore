@@ -1,4 +1,10 @@
-.idea/
+# Built application files
 build/
-dist/
-*.iml
+
+# IntelliJ IDEA
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+
+# Gradle
+.gradle/

@@ -1,8 +1,3 @@
-/*
- * Copyright (C) 2011 Gigya, Inc.
- * Version java_3.0
- */
-
 package com.gigya.socialize;
 
 import java.util.List;
@@ -89,7 +84,7 @@ public class GSResponse {
 
     /**
      * Returns the result code of the operation.
-     * Code '0' indicates success, any other number indicates failure. For the complete list of server error codes, see the <a  href="http://wiki.gigya.com/030_API_reference/030_Response_Codes_and_Errors">Error Codes</a> table.
+     * Code '0' indicates success, any other number indicates failure. For the complete list of server error codes, see the <a  href="http://developers.gigya.com/display/GD/Response+Codes+and+Errors+REST">Error Codes</a> table.
      *
      * @return the error code
      */
@@ -127,7 +122,7 @@ public class GSResponse {
 
     /**
      * Returns the response data in GSObject.
-     * Please refer to Gigya's <a href="http://wiki.gigya.com/030_API_reference/020_REST_API">REST API reference</a>, for a list of response data structure per method request.
+     * Please refer to Gigya's <a href="http://developers.gigya.com/display/GD/REST+API">REST API reference</a>, for a list of response data structure per method request.
      * Note: If the request was sent with the <em>format</em> parameter set to "xml", the getData() will return null and you should use getResponseText() method instead.
      * We only parse response text into GSObject if the request format is "json", which is the default.
      *

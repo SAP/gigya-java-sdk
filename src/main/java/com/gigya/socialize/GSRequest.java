@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
  * This class is used for sending a request to Gigya Service.
  */
 public class GSRequest {
-    public static final String VERSION = "java_3.1.3";
+    public static final String VERSION = "java_3.2.0";
 
     public static boolean ENABLE_CONNECTION_POOLING = true;
 
@@ -76,7 +76,7 @@ public class GSRequest {
     /**
      * Constructs a request using an apiKey and a secretKey. Suitable when using
      * Gigya's proprietary authorization method. To learn more, please refer to
-     * our <a href="http://wiki.gigya.com/020_Developer_Guide/67_REST/OAuth1"
+     * our <a href="http://developers.gigya.com/display/GD/REST+API+with+Gigya's+Authorization+Method"
      * >Using Gigya's REST API with our proprietary authorization method
      * Guide</a> Please provide a user ID (UID) in the <em>params</em> object to
      * specify the user.
@@ -85,18 +85,18 @@ public class GSRequest {
      *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
      *                     >Site Setup</a> page on Gigya's website (Read more in the <a
      *                     href=
-     *                     "http://wiki.gigya.com/Gigya_Socialize_API_2.0/Socialize_Setup"
+     *                     "http://developers.gigya.com/display/GD/Site+Setup"
      *                     >Site Setup</a> guide).
      * @param secretKey    your Gigya Secret-Key which can be obtained from the <a href=
      *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
      *                     >Site Setup</a> page on Gigya's website.
      * @param apiMethod    the Gigya API method to call, including namespace. For
      *                     example: "socialize.getUserInfo". Please refer to our <a
-     *                     href="http://wiki.gigya.com/030_API_reference/020_REST_API"
+     *                     href="http://developers.gigya.com/display/GD/REST+API"
      *                     >REST API reference</a> for the list of available methods.
      * @param clientParams a GSObject object that contains the parameters for the Gigya
      *                     API method to call. Please refer to our <a
-     *                     href="http://wiki.gigya.com/030_API_reference/020_REST_API"
+     *                     href="http://developers.gigya.com/display/GD/REST+API"
      *                     >REST API reference</a> and find in the specific method
      *                     reference the list of method parameters. Please provide a user
      *                     ID (UID) in the params object to specify the user.
@@ -335,8 +335,7 @@ public class GSRequest {
 
 
         if (this.accessToken == null &&
-                (apiKey == null
-                        || (this.apiKey == null && this.userKey == null)
+                ((this.apiKey == null && this.userKey == null)
                         || (this.secretKey == null && this.userKey != null)))
             return new GSResponse(this.apiMethod, this.params, 400002, logger);
 
@@ -413,14 +412,15 @@ public class GSRequest {
         StringBuilder req = new StringBuilder();
         String val;
         for (String key : params.getKeys()) {
-            val = params.getString(key, null);
-            if (val != null) {
-                req.append(key);
-                req.append('=');
-                req.append(UrlEncode(params.getString(key, null)));
-            }
+            val = UrlEncode(params.getString(key, null));
+            req.append(key);
+            req.append('=');
+            req.append(val);
             req.append('&');
         }
+        if (req.length() > 0)
+            req.deleteCharAt(req.length() - 1);
+
         return req.toString();
     }
 
@@ -430,13 +430,14 @@ public class GSRequest {
         String val;
         for (String key : params.getKeys()) {
             val = urlEncodedParam(key);
-            if (val != null) {
-                req.append(key);
-                req.append('=');
-                req.append(val);
-            }
+            req.append(key);
+            req.append('=');
+            req.append(val);
             req.append('&');
         }
+        if (req.length() > 0)
+            req.deleteCharAt(req.length() - 1);
+
         return req.toString();
     }
 
@@ -624,6 +625,9 @@ public class GSRequest {
      * @return the URL encoded string
      */
     public static String UrlEncode(String value) {
+        if (value == null)
+            return null;
+
         try {
             return URLEncoder.encode(value, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
         } catch (Exception ex) {
