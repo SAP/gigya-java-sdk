@@ -163,6 +163,7 @@ public class GSRequest {
      */
     public void clearParams() {
         this.params = new GSObject();
+        this.urlEncodedParams = null;
     }
 
     /**
