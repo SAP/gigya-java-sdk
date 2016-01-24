@@ -2,7 +2,7 @@
 <project name="JavaSDK" default="release" basedir=".">
 
     <!-- Sets variables which can later be used. -->
-    <property name="java_version" value="3.2.0"/>
+    <property name="java_version" value="3.2.1"/>
     <property name="java_dir" value="java"/>
     <property name="java_jar_path" value="gigya-sdk-${java_version}.jar"/>
     <property name="java_src_path" value="gigya-sdk-${java_version}-sources.jar"/>
