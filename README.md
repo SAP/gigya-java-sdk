@@ -1,4 +1,4 @@
-Gigya SDK for Java version 3.2.0
+Gigya SDK for Java version 3.2.1
 ===================================
 The Java SDK provides an interface for the Gigya API.  
 The library makes it simple to integrate Gigya's service in your Java project.
