@@ -548,7 +548,14 @@ public class GSRequest {
             wr.write(data);
             wr.flush();
 
-            InputStream input = conn.getInputStream();
+            int responseStatusCode = ((HttpURLConnection) conn).getResponseCode();
+            boolean badRequest = (responseStatusCode >= HttpURLConnection.HTTP_BAD_REQUEST);
+            InputStream input;
+
+            if (badRequest)
+                input = ((HttpURLConnection) conn).getErrorStream();
+            else
+                input = conn.getInputStream();
 
             if ("gzip".equals(conn.getContentEncoding())) {
                 input = new GZIPInputStream(input);
