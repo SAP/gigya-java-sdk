@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SDK.iml" filepath="$PROJECT_DIR$/SDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SDK_main.iml" filepath="$PROJECT_DIR$/.idea/modules/SDK_main.iml" group="SDK" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SDK_test.iml" filepath="$PROJECT_DIR$/.idea/modules/SDK_test.iml" group="SDK" />
+      <module fileurl="file://$PROJECT_DIR$/gigya-java-sdk.iml" filepath="$PROJECT_DIR$/gigya-java-sdk.iml" />
     </modules>
   </component>
 </project>

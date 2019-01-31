@@ -1,13 +1,14 @@
-version '1.0-SNAPSHOT'
-
 apply plugin: 'java'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.json:json:20141113'
     testCompile 'org.skyscreamer:jsonassert:1.2.3'
+    testCompile 'org.mockito:mockito-core:2.8.9'
+    testCompile 'org.powermock:powermock-module-junit4:1.7.4'
+    testCompile 'org.powermock:powermock-api-mockito2:1.7.4'
 }
