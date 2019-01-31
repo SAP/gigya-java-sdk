@@ -131,4 +131,15 @@ public class SigUtils {
 
         return ret;
     }
+
+    public static String getDynamicSessionSignatureUserSigned(String glt_cookie, int timeoutInSeconds, String userKey, String secret) throws UnsupportedEncodingException, InvalidKeyException {
+        // cookie format:
+        // <expiration time in unix time format>_<User Key>_BASE64(HMACSHA1(secret key, <login token>_<expiration time in unix time format>_<User Key>))
+
+        String expirationTimeUnix = String.valueOf(new Date().getTime() / 1000 + timeoutInSeconds);
+        String unsignedExpString = glt_cookie + "_" + expirationTimeUnix + "_" + userKey;
+        String signedExpString = calcSignature("HmacSHA1", unsignedExpString, Base64.decode(secret)); // sign the base string using the secret key
+
+        return expirationTimeUnix + "_" + userKey + "_" + signedExpString;
+    }
 }

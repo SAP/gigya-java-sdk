@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
  * This class is used for sending a request to Gigya Service.
  */
 public class GSRequest {
-    public static final String VERSION = "java_3.2.1";
+    public static final String VERSION = "java_3.2.2";
 
     public static boolean ENABLE_CONNECTION_POOLING = true;
 
@@ -548,7 +548,14 @@ public class GSRequest {
             wr.write(data);
             wr.flush();
 
-            InputStream input = conn.getInputStream();
+            int responseStatusCode = ((HttpURLConnection) conn).getResponseCode();
+            boolean badRequest = (responseStatusCode >= HttpURLConnection.HTTP_BAD_REQUEST);
+            InputStream input;
+
+            if (badRequest)
+                input = ((HttpURLConnection) conn).getErrorStream();
+            else
+                input = conn.getInputStream();
 
             if ("gzip".equals(conn.getContentEncoding())) {
                 input = new GZIPInputStream(input);
