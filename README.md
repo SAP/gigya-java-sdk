@@ -1,5 +1,5 @@
-# SAP CDC <platform> SDK
-For documentation: http://developers.gigya.com/display/GD/Java
+# Gigya Services (GS) Java SDK 
+Documentation: http://developers.gigya.com/display/GD/Java
 
 ## Description
 The Java SDK, provides a Java interface for the Gigya API. 
@@ -7,6 +7,7 @@ The library makes it simple to integrate Gigya services in your Java application
 
 ## Requirements
 [The Java SDK requires JDK1.5 and above](https://www.java.com/en/download/) 
+
 Please note that the GSJavaSDK.jar file is compiled using JDK 1.8 with compatibility for 1.6, 
 but you may use the SDK's source files and compile them in a JDK 1.5 environment.
 
