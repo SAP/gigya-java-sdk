@@ -24,9 +24,9 @@ public class SigUtilsTest extends TestCase {
     final String DOMAIN_NAME = "photos.example.net";
     final String METHOD_NAME = "photos";
     final String REQUEST_METHOD = "POST";
-    final String CONSUMER_SECRET = "kd94hf93k423kf44";
-    final String TOKEN_SECRET = "pfkkdhi9sl3r4s00";
-    final String SIGNATURE = "wPkvxykrw+BTdCcGqKr+3I+PsiM=";
+    final String CONSUMER_SECRET = "...";//insert consumer key here
+    final String TOKEN_SECRET = "...";//insert token secret here
+    final String SIGNATURE = "...";//insert signature here
     GSRequest request;
     String apiMethodUrl;
     String sessionSecret;
@@ -37,8 +37,8 @@ public class SigUtilsTest extends TestCase {
         super.setUp();
 
         JSONObject jsonParams = new JSONObject();
-        jsonParams.put("oauth_consumer_key", "dpf43f3p2l4k3l03");
-        jsonParams.put("oauth_token", "nnch734d00sl2jdk");
+        jsonParams.put("oauth_consumer_key", "...");//insert consumer key here
+        jsonParams.put("oauth_token", "...");//insert token here
         jsonParams.put("oauth_signature_method", "HMAC-SHA1");
         jsonParams.put("oauth_timestamp", "1191242096");
         jsonParams.put("oauth_nonce", "kllo9940pd9333jh");
@@ -79,8 +79,8 @@ public class SigUtilsTest extends TestCase {
         whenNew(Date.class).withNoArguments().thenReturn(now);
         // Arrange
         final String glt_cookie = "glt_0sadashd913fhe9qsjfjh1fg";
-        final String secret = "laksdajsfasf";
-        final String userKey = "alskdlaksd123123";
+        final String secret = "...";//insert your secret here
+        final String userKey = "...";//insert your token here
         // Act
         final String signature = SigUtils.getDynamicSessionSignatureUserSigned(glt_cookie, 5, userKey, secret);
         // Assert
@@ -94,6 +94,6 @@ public class SigUtilsTest extends TestCase {
     private String getExpectedOAuth1BaseString(String urlScheme, int port) {
         return "POST&" + urlScheme + "%3A%2F%2Fphotos.example.net%3A" + port + "%2Fphotos&file%3Dvacation.jpg%26" +
                 "oauth_consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26" +
-                "oauth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal";
+                "oauth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal"; //change the token here to your inserted token.
     }
 }
