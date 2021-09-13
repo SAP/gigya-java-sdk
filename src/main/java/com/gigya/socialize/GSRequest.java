@@ -76,7 +76,7 @@ public class GSRequest {
     /**
      * Constructs a request using an apiKey and a secretKey. Suitable when using
      * Gigya's proprietary authorization method. To learn more, please refer to
-     * our <a href="http://developers.gigya.com/display/GD/REST+API+with+Gigya's+Authorization+Method"
+     * our <a href="https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/416d906d70b21014bbc5a10ce4041860.html+with+Gigya's+Authorization+Method"
      * >Using Gigya's REST API with our proprietary authorization method
      * Guide</a> Please provide a user ID (UID) in the <em>params</em> object to
      * specify the user.
@@ -92,11 +92,11 @@ public class GSRequest {
      *                     >Site Setup</a> page on Gigya's website.
      * @param apiMethod    the Gigya API method to call, including namespace. For
      *                     example: "socialize.getUserInfo". Please refer to our <a
-     *                     href="http://developers.gigya.com/display/GD/REST+API"
+     *                     href="https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/416d906d70b21014bbc5a10ce4041860.html"
      *                     >REST API reference</a> for the list of available methods.
      * @param clientParams a GSObject object that contains the parameters for the Gigya
      *                     API method to call. Please refer to our <a
-     *                     href="http://developers.gigya.com/display/GD/REST+API"
+     *                     href="https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/416d906d70b21014bbc5a10ce4041860.html"
      *                     >REST API reference</a> and find in the specific method
      *                     reference the list of method parameters. Please provide a user
      *                     ID (UID) in the params object to specify the user.
