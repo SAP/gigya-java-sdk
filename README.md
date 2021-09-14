@@ -17,8 +17,8 @@ but you may use the SDK's source files and compile them in a JDK 1.5 environment
 * Build via Gradle.
 
 ## Configuration
-* [Obtain a Gigya APIKey and Secret key](https://developers.gigya.com/display/GD/Java#Java-ObtainingGigya'sAPIKeyandSecretkey).
-* Start using according to [documentation](https://developers.gigya.com/display/GD/Java).
+* [Obtain a Gigya APIKey and Secret key](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4161e13770b21014bbc5a10ce4041860.html#topicID2__Obtaining_API_Key).
+* Start using according to [documentation](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4161e13770b21014bbc5a10ce4041860.html).
 
 ## Limitations
 None
