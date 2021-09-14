@@ -82,13 +82,13 @@ public class GSRequest {
      * specify the user.
      *
      * @param apiKey       your Gigya API-Key which can be obtained from the <a href=
-     *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
+     *                     "https://console.gigya.com/site/partners/Dashboard.aspx"
      *                     >Site Setup</a> page on Gigya's website (Read more in the <a
      *                     href=
-     *                     "http://developers.gigya.com/display/GD/Site+Setup"
+     *                     "https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/41720d7370b21014bbc5a10ce4041860.html"
      *                     >Site Setup</a> guide).
      * @param secretKey    your Gigya Secret-Key which can be obtained from the <a href=
-     *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
+     *                     "https://console.gigya.com/site/partners/Dashboard.aspx"
      *                     >Site Setup</a> page on Gigya's website.
      * @param apiMethod    the Gigya API method to call, including namespace. For
      *                     example: "socialize.getUserInfo". Please refer to our <a
