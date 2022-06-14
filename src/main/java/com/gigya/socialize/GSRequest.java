@@ -552,14 +552,25 @@ public class GSRequest {
             boolean badRequest = (responseStatusCode >= HttpURLConnection.HTTP_BAD_REQUEST);
             InputStream input;
 
-            if (badRequest)
+            if (badRequest) {
                 input = ((HttpURLConnection) conn).getErrorStream();
-            else
+                if (input == null) {
+                    input = conn.getInputStream();
+                }
+            } else {
                 input = conn.getInputStream();
+            }
 
             if ("gzip".equals(conn.getContentEncoding())) {
                 input = new GZIPInputStream(input);
             }
+
+            if (input == null) {
+                logger.write("domain", domain);
+                logger.write("path", path);
+                logger.write("params", params.toJsonObject().toString());
+            }
+
             rd = new BufferedReader(new InputStreamReader(input, "UTF-8"));
 
             String line;
@@ -593,7 +604,10 @@ public class GSRequest {
 
             return gsr;
         } catch (Exception ex) {
-            logger.write(ex);
+            logger.write("error", ex);
+            logger.write("domain", domain);
+            logger.write("path", path);
+            logger.write("params", params.toJsonObject().toString());
             throw ex;
         } finally {
             if (wr != null)
