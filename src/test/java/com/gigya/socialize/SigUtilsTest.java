@@ -24,9 +24,8 @@ public class SigUtilsTest extends TestCase {
     final String DOMAIN_NAME = "photos.example.net";
     final String METHOD_NAME = "photos";
     final String REQUEST_METHOD = "POST";
-    final String CONSUMER_SECRET = "...";//insert consumer key here
-    final String TOKEN_SECRET = "...";//insert token secret here
-    final String SIGNATURE = "...";//insert signature here
+    final String CONSUMER_SECRET = "test-consumer-secret";//insert consumer key here
+    final String TOKEN_SECRET = "test-token-secret";//insert token secret here
     GSRequest request;
     String apiMethodUrl;
     String sessionSecret;
@@ -37,8 +36,8 @@ public class SigUtilsTest extends TestCase {
         super.setUp();
 
         JSONObject jsonParams = new JSONObject();
-        jsonParams.put("oauth_consumer_key", "...");//insert consumer key here
-        jsonParams.put("oauth_token", "...");//insert token here
+        jsonParams.put("oauth_consumer_key", CONSUMER_SECRET);
+        jsonParams.put("oauth_token", TOKEN_SECRET);
         jsonParams.put("oauth_signature_method", "HMAC-SHA1");
         jsonParams.put("oauth_timestamp", "1191242096");
         jsonParams.put("oauth_nonce", "kllo9940pd9333jh");
@@ -56,7 +55,7 @@ public class SigUtilsTest extends TestCase {
     @Test
     public void testOAuth1SigningReturnsExpectedSignature() throws Exception {
         String baseString = SigUtils.calcOAuth1BaseString(REQUEST_METHOD, apiMethodUrl, request);
-        assertEquals(SigUtils.getOAuth1Signature(baseString, sessionSecret), SIGNATURE);
+        assertEquals(SigUtils.getOAuth1Signature(baseString, sessionSecret), "j4/Jwtp11HLWl7KG3QlsczfRRpU=");
     }
 
     @Test
@@ -76,11 +75,11 @@ public class SigUtilsTest extends TestCase {
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         final Date now = sdf.parse("2019-01-01 00:00:00");
-        whenNew(Date.class).withNoArguments().thenReturn(now);
+        whenNew(Date.class).withAnyArguments().thenReturn(now);
         // Arrange
         final String glt_cookie = "glt_0sadashd913fhe9qsjfjh1fg";
-        final String secret = "...";//insert your secret here
-        final String userKey = "...";//insert your token here
+        final String secret = "dGVzdHNlY3JldA==";//insert your secret here
+        final String userKey = "testuserkey";//insert your token here
         // Act
         final String signature = SigUtils.getDynamicSessionSignatureUserSigned(glt_cookie, 5, userKey, secret);
         // Assert
@@ -93,7 +92,7 @@ public class SigUtilsTest extends TestCase {
 
     private String getExpectedOAuth1BaseString(String urlScheme, int port) {
         return "POST&" + urlScheme + "%3A%2F%2Fphotos.example.net%3A" + port + "%2Fphotos&file%3Dvacation.jpg%26" +
-                "oauth_consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26" +
-                "oauth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal"; //change the token here to your inserted token.
+                "oauth_consumer_key%3Dtest-consumer-secret%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26" +
+                "oauth_timestamp%3D1191242096%26oauth_token%3Dtest-token-secret%26oauth_version%3D1.0%26size%3Doriginal"; //change the token here to your inserted token.
     }
 }
