@@ -31,7 +31,7 @@ public class GSRequest {
     private boolean useHTTPS;
     private boolean isLoggedIn;
     private boolean isRetry = false;
-    private String userKey;
+    protected String userKey;
     protected String apiMethod;
     protected String apiDomain = DEFAULT_API_DOMAIN;
     protected String hostOverride = null;
