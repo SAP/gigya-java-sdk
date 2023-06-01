@@ -1,5 +1,6 @@
 # Built application files
 build/
+.DS_Store
 
 # IntelliJ IDEA
 .idea/

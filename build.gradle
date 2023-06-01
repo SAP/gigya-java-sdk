@@ -4,11 +4,35 @@ repositories {
     jcenter()
 }
 
+version = '3.2.4'
+
 dependencies {
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.json:json:20220320'
+    testImplementation 'org.json:json:20230227'
     testImplementation 'org.skyscreamer:jsonassert:1.5.0'
     testImplementation 'org.mockito:mockito-core:4.6.1'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
+
+    implementation 'org.json:json:20230227'
+}
+
+
+
+//create a single Jar with all dependencies
+tasks.register('fatJar', Jar) {
+    archivesBaseName = 'gigya-sdk'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+tasks.register('sourceJar', Jar) {
+    from sourceSets.main.allJava
+    archivesBaseName = 'gigya-sdk'
+    archiveClassifier = "sources"
+}
+
+tasks.register('createDistribution', GradleBuild) {
+    tasks = ['clean', 'fatJar', 'sourceJar']
 }
