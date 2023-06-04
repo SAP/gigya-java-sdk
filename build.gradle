@@ -14,25 +14,23 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
 
-    implementation 'org.json:json:20230227'
+    compileOnly 'org.json:json:20230227'
 }
 
-
-
 //create a single Jar with all dependencies
-tasks.register('fatJar', Jar) {
+tasks.register('build', Jar) {
     archivesBaseName = 'gigya-sdk'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
-tasks.register('sourceJar', Jar) {
+tasks.register('sources', Jar) {
     from sourceSets.main.allJava
     archivesBaseName = 'gigya-sdk'
     archiveClassifier = "sources"
 }
 
 tasks.register('createDistribution', GradleBuild) {
-    tasks = ['clean', 'fatJar', 'sourceJar']
+    tasks = ['clean', 'build', 'sources']
 }
