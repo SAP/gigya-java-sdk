@@ -4,7 +4,7 @@ repositories {
     mavenCentral()
 }
 
-version = '3.2.4'
+version = '3.2.7'
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
@@ -18,14 +18,14 @@ dependencies {
 }
 
 //create a single Jar with all dependencies
-tasks.register('build', Jar) {
+tasks.register('build-sdk', Jar) {
     archivesBaseName = 'gigya-sdk'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
-tasks.register('sources', Jar) {
+tasks.register('sources-sdk', Jar) {
     from sourceSets.main.allJava
     archivesBaseName = 'gigya-sdk'
     archiveClassifier = "sources"
