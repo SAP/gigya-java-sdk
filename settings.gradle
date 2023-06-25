@@ -1,2 +1,4 @@
-rootProject.name = 'SDK'
+rootProject.name = 'gigya-java-sdk'
+include 'sdk'
+include 'auth'
 
