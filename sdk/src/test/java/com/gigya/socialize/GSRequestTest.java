@@ -16,7 +16,6 @@ public class GSRequestTest extends TestCase {
     final String URL_ENCODED_STRING = "%21%2A%27%28%29%3B%3A%40%26%3D%2B%24%2C%2F%3F%25%23%5B%5D%20";
     final String URL_COMPLIANT_STRING = "abc012_-.";
 
-
     @Test
     public void testURLEncodeStringConvertsRequiredCharacters() {
         assertEquals(GSRequest.UrlEncode(URL_DECODED_STRING), URL_ENCODED_STRING);

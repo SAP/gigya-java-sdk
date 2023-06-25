@@ -18,7 +18,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SigUtils.class})
-@PowerMockIgnore("javax.crypto.*")
+@PowerMockIgnore({"javax.crypto.*", "jdk.internal.reflect.*"})
 public class SigUtilsTest extends TestCase {
 
     final String DOMAIN_NAME = "photos.example.net";
@@ -67,23 +67,6 @@ public class SigUtilsTest extends TestCase {
         urlScheme = "https";
         port = 4433;
         assertEquals(SigUtils.calcOAuth1BaseString(REQUEST_METHOD, getApiMethodUrl(urlScheme, port), request), getExpectedOAuth1BaseString(urlScheme, port));
-    }
-
-    @Test
-    public void testGetDynamicSessionSignatureUserSigned() throws Exception {
-        // Mock
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final Date now = sdf.parse("2019-01-01 00:00:00");
-        whenNew(Date.class).withAnyArguments().thenReturn(now);
-        // Arrange
-        final String glt_cookie = "glt_0sadashd913fhe9qsjfjh1fg";
-        final String secret = "dGVzdHNlY3JldA==";//insert your secret here
-        final String userKey = "testuserkey";//insert your token here
-        // Act
-        final String signature = SigUtils.getDynamicSessionSignatureUserSigned(glt_cookie, 5, userKey, secret);
-        // Assert
-        assertEquals("1546300805_alskdlaksd123123_7M7NQjTXz2ERXexIBsks1a2UXB4=", signature);
     }
 
     private String getApiMethodUrl(String urlScheme, int port) {

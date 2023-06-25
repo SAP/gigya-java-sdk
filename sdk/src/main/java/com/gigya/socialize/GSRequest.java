@@ -4,9 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.security.InvalidKeyException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -21,23 +19,24 @@ public class GSRequest {
     private static Random randomGenerator = new Random();
     private static final String DEFAULT_API_DOMAIN = "us1.gigya.com";
 
-    private String host;
-    private String path;
-    private String accessToken;
-    private String apiKey;
-    private String secretKey;
-    private GSObject params;
+    protected String host;
+    protected String path;
+    protected String accessToken;
+    protected String apiKey;
+    protected String secretKey;
+    protected GSObject params;
     private GSObject urlEncodedParams;
-    private boolean useHTTPS;
-    private boolean isLoggedIn;
-    private boolean isRetry = false;
+    private Map<String, String> additionalHeaders = new HashMap<String, String>();
+    protected boolean useHTTPS = true;
+    protected boolean isLoggedIn;
+    protected boolean isRetry = false;
     protected String userKey;
     protected String apiMethod;
     protected String apiDomain = DEFAULT_API_DOMAIN;
     protected String hostOverride = null;
     protected String format;
 
-    private GSLogger logger = new GSLogger();
+    protected GSLogger logger = new GSLogger();
     private Proxy proxy = null;
 
 
@@ -76,34 +75,34 @@ public class GSRequest {
     /**
      * Constructs a request using an apiKey and a secretKey. Suitable when using
      * Gigya's proprietary authorization method. To learn more, please refer to
-     * our <a href="https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/416d906d70b21014bbc5a10ce4041860.html+with+Gigya's+Authorization+Method"
+     * our <a href="http://developers.gigya.com/display/GD/REST+API+with+Gigya's+Authorization+Method"
      * >Using Gigya's REST API with our proprietary authorization method
      * Guide</a> Please provide a user ID (UID) in the <em>params</em> object to
      * specify the user.
      *
      * @param apiKey       your Gigya API-Key which can be obtained from the <a href=
-     *                     "https://console.gigya.com/site/partners/Dashboard.aspx"
+     *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
      *                     >Site Setup</a> page on Gigya's website (Read more in the <a
      *                     href=
-     *                     "https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/41720d7370b21014bbc5a10ce4041860.html"
+     *                     "http://developers.gigya.com/display/GD/Site+Setup"
      *                     >Site Setup</a> guide).
      * @param secretKey    your Gigya Secret-Key which can be obtained from the <a href=
-     *                     "https://console.gigya.com/site/partners/Dashboard.aspx"
+     *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
      *                     >Site Setup</a> page on Gigya's website.
      * @param apiMethod    the Gigya API method to call, including namespace. For
      *                     example: "socialize.getUserInfo". Please refer to our <a
-     *                     href="https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/416d906d70b21014bbc5a10ce4041860.html"
+     *                     href="http://developers.gigya.com/display/GD/REST+API"
      *                     >REST API reference</a> for the list of available methods.
      * @param clientParams a GSObject object that contains the parameters for the Gigya
      *                     API method to call. Please refer to our <a
-     *                     href="https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/416d906d70b21014bbc5a10ce4041860.html"
+     *                     href="http://developers.gigya.com/display/GD/REST+API"
      *                     >REST API reference</a> and find in the specific method
      *                     reference the list of method parameters. Please provide a user
      *                     ID (UID) in the params object to specify the user.
      * @param useHTTPS     this parameter determines whether the request to Gigya will be
      *                     sent over HTTP or HTTPS. To send of HTTPS, please set this
      *                     parameter to true. The library uses HTTP (the request is
-     *                     signed with the session's secret key) and only uses HTTPS if
+     *                     auth with the session's secret key) and only uses HTTPS if
      *                     the secret is not present. but you can use this parameter to
      *                     override the decision.
      * @param userKey      A key of an administrative user with extra permissions.
@@ -335,10 +334,10 @@ public class GSRequest {
         logger.write("useHTTPS", useHTTPS);
 
 
-        if (this.accessToken == null &&
-                ((this.apiKey == null && this.userKey == null)
-                        || (this.secretKey == null && this.userKey != null)))
+        // Evaluate request authorization conditions.
+        if (!evaluateRequestAuthorization()) {
             return new GSResponse(this.apiMethod, this.params, 400002, logger);
+        }
 
         try {
             GSResponse res = sendRequest("POST", this.host, this.path,
@@ -371,6 +370,15 @@ public class GSRequest {
             return new GSResponse(this.apiMethod, this.params, 500000,
                     ex.toString(), logger);
         }
+    }
+
+    /**
+     * Override for a different authorization clause.
+     *
+     * @return True if authorized to make the request.
+     */
+    protected boolean evaluateRequestAuthorization() {
+        return this.accessToken != null || this.secretKey != null || (this.userKey != null && this.apiKey != null);
     }
 
     /**
@@ -442,6 +450,43 @@ public class GSRequest {
         return req.toString();
     }
 
+    protected void signRequest(String token, String secret, String httpMethod, String resourceURI)
+            throws UnsupportedEncodingException, InvalidKeyException, MalformedURLException {
+        if (this.accessToken != null) {
+            params.put("oauth_token", this.accessToken);
+        } else {
+            if (!params.containsKey("oauth_token") && token != null) {
+                params.put("apiKey", token);
+            }
+
+            if (this.userKey != null)
+                params.put("userKey", this.userKey);
+
+            if (secret != null) {
+                String timestamp = Long.toString((System
+                        .currentTimeMillis() / 1000)
+                        + timestampOffsetSec);
+
+                String nonce = System.currentTimeMillis()
+                        + "_"
+                        + randomGenerator.nextInt();
+
+                params.put("timestamp", timestamp);
+                params.put("nonce", nonce);
+
+                String baseString = SigUtils.calcOAuth1BaseString(
+                        httpMethod, resourceURI, this);
+                logger.write("baseString", baseString);
+
+                String signature = SigUtils.getOAuth1Signature(
+                        baseString, secret);
+
+                params.put("sig", signature);
+                logger.write("sig", signature);
+            }
+        }
+    }
+
     /**
      * Send the actual HTTP/S request
      *
@@ -459,9 +504,15 @@ public class GSRequest {
      * login
      * @throws Exception
      */
-    protected GSResponse sendRequest(String httpMethod, String domain,
-                                     String path, GSObject params, String token, String secret,
-                                     boolean useHTTPS, boolean isLoggedIn, int timeoutMS)
+    protected GSResponse sendRequest(String httpMethod,
+                                     String domain,
+                                     String path,
+                                     GSObject params,
+                                     String token,
+                                     String secret,
+                                     boolean useHTTPS,
+                                     boolean isLoggedIn,
+                                     int timeoutMS)
             throws Exception {
         long start = new Date().getTime();
         OutputStreamWriter wr = null;
@@ -483,39 +534,8 @@ public class GSRequest {
 
             logger.write("sdk", params.getString("sdk"));
 
-            if (accessToken != null) {
-                params.put("oauth_token", accessToken);
-            } else {
-                if (!params.containsKey("oauth_token"))
-                    params.put("apiKey", token);
-
-                if (this.userKey != null)
-                    params.put("userKey", this.userKey);
-
-                if (secret != null) {
-                    String timestamp = Long.toString((System
-                            .currentTimeMillis() / 1000)
-                            + timestampOffsetSec);
-
-                    String nonce = Long
-                            .toString(System.currentTimeMillis())
-                            + "_"
-                            + randomGenerator.nextInt();
-
-                    params.put("timestamp", timestamp);
-                    params.put("nonce", nonce);
-
-                    String baseString = SigUtils.calcOAuth1BaseString(
-                            httpMethod, resourceURI, this);
-                    logger.write("baseString", baseString);
-
-                    String signature = SigUtils.getOAuth1Signature(
-                            baseString, secret);
-
-                    params.put("sig", signature);
-                    logger.write("signature", signature);
-                }
-            }
+            // Sign the request.
+            signRequest(token, secret, httpMethod, resourceURI);
 
             String data = this.buildQS();
             logger.write("post_data", data);
@@ -531,6 +551,13 @@ public class GSRequest {
             if (timeoutMS != -1) {
                 conn.setConnectTimeout(timeoutMS);
                 conn.setReadTimeout(timeoutMS);
+            }
+
+            // Add additional custom headers.
+            if (additionalHeaders != null) {
+                for (Map.Entry<String, String> entry : additionalHeaders.entrySet()) {
+                    conn.setRequestProperty(entry.getKey(), entry.getValue());
+                }
             }
 
             conn.setRequestProperty("Accept-Encoding", "gzip");
@@ -552,25 +579,14 @@ public class GSRequest {
             boolean badRequest = (responseStatusCode >= HttpURLConnection.HTTP_BAD_REQUEST);
             InputStream input;
 
-            if (badRequest) {
+            if (badRequest)
                 input = ((HttpURLConnection) conn).getErrorStream();
-                if (input == null) {
-                    input = conn.getInputStream();
-                }
-            } else {
+            else
                 input = conn.getInputStream();
-            }
 
             if ("gzip".equals(conn.getContentEncoding())) {
                 input = new GZIPInputStream(input);
             }
-
-            if (input == null) {
-                logger.write("domain", domain);
-                logger.write("path", path);
-                logger.write("params", params.toJsonObject().toString());
-            }
-
             rd = new BufferedReader(new InputStreamReader(input, "UTF-8"));
 
             String line;
@@ -601,28 +617,27 @@ public class GSRequest {
 
             wr.close();
             rd.close();
+            input.close();
 
             return gsr;
         } catch (Exception ex) {
-            logger.write("error", ex);
-            logger.write("domain", domain);
-            logger.write("path", path);
-            logger.write("params", params.toJsonObject().toString());
+            logger.write(ex);
             throw ex;
         } finally {
             if (wr != null)
                 try {
                     wr.close();
                 } catch (IOException e) {
+                    logger.write(e);
                 }
             if (rd != null)
                 try {
                     rd.close();
                 } catch (IOException e) {
+                    logger.write(e);
                 }
             if (conn != null && !GSRequest.ENABLE_CONNECTION_POOLING)
                 ((HttpURLConnection) conn).disconnect();
-
         }
     }
 
@@ -655,6 +670,10 @@ public class GSRequest {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public void addHeader(String key, String value) {
+        additionalHeaders.put(key, value);
     }
 
 }
