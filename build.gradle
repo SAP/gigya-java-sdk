@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        sdk_library_version = '3.3.0'
+        sdk_library_version = '3.3.1'
         auth_library_version = '1.0.0'
     }
 
