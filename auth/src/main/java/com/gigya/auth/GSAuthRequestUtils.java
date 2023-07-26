@@ -22,7 +22,7 @@ import java.util.*;
 
 public class GSAuthRequestUtils {
 
-    public static final String VERSION = "java_auth_1.0.0";
+    public static final String VERSION = "java_auth_1.0.1";
 
     public static GSLogger logger = new GSLogger();
 
@@ -300,7 +300,7 @@ public class GSAuthRequestUtils {
 
             // #2 - Verify JWT provided api key with input api key.
             final String issuer = claimsJws.getBody().getIssuer();
-            final String validIssuer = "https://fidm.gigya.com/jwt/" + apiKey;
+            final String validIssuer = "https://fidm.gigya.com/jwt/" + apiKey + "/";
             if (issuer != null && !issuer.equals(validIssuer)) {
                 logger.write("JWT verification failed - apiKey does not match");
                 return null;
