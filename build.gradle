@@ -9,7 +9,9 @@ allprojects {
         maven { url "https://jitpack.io" }
         mavenCentral()
     }
-    group = "com.gigya"
+    group = 'com.gigya'
+    archivesBaseName = 'gigya-java-sdk'
+    version = '3.3.2'
 }
 
 subprojects {
