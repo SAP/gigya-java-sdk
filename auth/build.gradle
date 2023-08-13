@@ -7,6 +7,15 @@ group = 'com.gigya'
 archivesBaseName = 'gigya-java-sdk-auth'
 version = auth_library_version
 
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
 repositories {
     maven { url "https://jitpack.io" }
     mavenCentral()

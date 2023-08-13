@@ -17,6 +17,14 @@ repositories {
     mavenCentral()
 }
 
+publishing {
+    publications {
+        library (MavenPublication) {
+            from components.java
+        }
+    }
+}
+
 group = 'com.gigya'
 archivesBaseName = 'gigya-java-sdk'
 version = sdk_library_version
