@@ -1,33 +1,5 @@
-plugins {
-    id 'java-library'
-    id 'maven-publish'
-}
-
-java {
-    withSourcesJar()
-}
-
-compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-}
-
-repositories {
-    maven { url "https://jitpack.io" }
-    mavenCentral()
-}
-
-publishing {
-    publications {
-        library (MavenPublication) {
-            from components.java
-        }
-    }
-}
-
-group = 'com.gigya'
 archivesBaseName = 'gigya-java-sdk'
-version = sdk_library_version
+version = "3.3.2"
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
