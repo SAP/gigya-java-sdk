@@ -10,7 +10,6 @@ allprojects {
         mavenCentral()
     }
     group = 'com.gigya'
-    archivesBaseName = 'gigya-java-sdk'
     version = '3.3.2'
 }
 

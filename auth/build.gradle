@@ -1,3 +1,5 @@
+archivesBaseName = 'gigya-java-sdk-auth'
+
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
     testImplementation 'org.json:json:20230227'
