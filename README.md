@@ -1,3 +1,4 @@
+[![Release](https://jitpack.io/v/SAP/gigya-java-sdk.svg)](https://jitpack.io/v/SAP/gigya-java-sdk)
 # Java SDK 
 [Learn more](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4161e13770b21014bbc5a10ce4041860.html)
 
@@ -12,6 +13,33 @@ Please note that the GSJavaSDK.jar file is compiled using JDK 1.8 with compatibi
 but you may use the SDK's source files and compile them in a JDK 1.5 environment.
 
 ## Download and Installation
+### Using Jitpack
+* Add the Jitpack reference to your root build.gradle file
+```
+allprojects {
+    repositories {
+      ...
+      maven { url 'https://jitpack.io' }
+    }
+}
+```
+* Add the latest build reference to your app build.gradle file
+```
+dependencies {
+  implementation 'com.github.benoh-sap:gigya-java-sdk:sdk:3.3.2'
+  implementation 'com.github.benoh-sap:gigya-java-sdk:auth:3.3.2' // only if needed
+}
+```
+### Using Binaries
+* Go to releases
+* Download the required version and place the .jar file in your */libs* folder
+* Add to your gradle.build file
+```
+implementation files('libs/gigya-java-sdk-3.3.2.jar')
+implementation files('libs/gigya-java-sdk-auth-1.0.1.jar') // only if needed
+```
+  
+### Using the source code
 * Clone the repo.
 * Open the Project.
 * Build via Gradle.
