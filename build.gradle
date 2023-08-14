@@ -1,22 +1,38 @@
 buildscript {
-    ext {
-        sdk_library_version = '3.3.1'
-        auth_library_version = '1.0.1'
-    }
-
     repositories {
         mavenCentral()
     }
-}
-
-plugins {
-    id 'maven-publish'
 }
 
 allprojects {
     repositories {
         maven { url "https://jitpack.io" }
         mavenCentral()
+    }
+    group = 'com.gigya'
+    version = '3.3.2'
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+
+    sourceCompatibility = 1.8 // java 8
+    targetCompatibility = 1.8
+
+    java {
+        withSourcesJar()
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version project.version
+                from components.java
+            }
+        }
     }
 }
 

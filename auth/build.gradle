@@ -1,25 +1,4 @@
-plugins {
-    id 'java-library'
-    id 'maven-publish'
-}
-
-group = 'com.gigya'
 archivesBaseName = 'gigya-java-sdk-auth'
-version = auth_library_version
-
-repositories {
-    maven { url "https://jitpack.io" }
-    mavenCentral()
-}
-
-compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-}
-
-java {
-    withSourcesJar()
-}
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
