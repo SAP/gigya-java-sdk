@@ -26,8 +26,8 @@ allprojects {
 * Add the latest build reference to your app build.gradle file
 ```
 dependencies {
-  implementation 'com.github.benoh-sap:gigya-java-sdk:sdk:3.3.2'
-  implementation 'com.github.benoh-sap:gigya-java-sdk:auth:3.3.2' // only if needed
+  implementation 'com.github.SAP:gigya-java-sdk:sdk:3.3.2'
+  implementation 'com.github.SAP:gigya-java-sdk:auth:3.3.2' // only if needed
 }
 ```
 ### Using Binaries
