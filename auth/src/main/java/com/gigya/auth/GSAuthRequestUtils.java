@@ -295,8 +295,9 @@ public class GSAuthRequestUtils {
         try {
             // #1 - Parse token. Signing key must be available.
             final Jws<Claims> claimsJws = Jwts.parser()
-                    .setSigningKey(key)
-                    .parseClaimsJws(jwt);
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(jwt);
 
             // #2 - Verify JWT provided api key with input api key.
             final String issuer = claimsJws.getBody().getIssuer();
