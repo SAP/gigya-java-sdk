@@ -7,17 +7,17 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
-    testImplementation 'io.jsonwebtoken:jjwt-api:0.10.5'
+    testImplementation 'io.jsonwebtoken:jjwt-api:0.12.5'
     //noinspection VulnerableLibrariesLocal
-    testImplementation 'io.jsonwebtoken:jjwt-impl:0.10.5',
-            'io.jsonwebtoken:jjwt-jackson:0.10.5'
+    testImplementation 'io.jsonwebtoken:jjwt-impl:0.12.5',
+            'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
     compileOnly project(path: ':sdk')
 
 
-    implementation 'io.jsonwebtoken:jjwt-api:0.10.7'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.10.7',
-            'io.jsonwebtoken:jjwt-jackson:0.10.7'
+    compileOnly 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5',
+            'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
     compileOnly 'org.json:json:20230227'
 }
