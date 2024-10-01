@@ -2,7 +2,7 @@ archivesBaseName = 'gigya-java-sdk-auth'
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
-    testImplementation 'org.json:json:20230227'
+    testImplementation 'org.json:json:20240303'
     testImplementation 'org.skyscreamer:jsonassert:1.2.3'
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
@@ -19,7 +19,8 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5',
             'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
-    compileOnly 'org.json:json:20230227'
+    compileOnly 'org.json:json:20240303'
+
 }
 
 test {

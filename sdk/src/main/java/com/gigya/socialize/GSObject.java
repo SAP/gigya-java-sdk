@@ -10,6 +10,7 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -591,6 +592,9 @@ public class GSObject implements Serializable {
             }
             else if (value.getClass().equals(Double.class)) {
                 parentObj.put(key, (Double) value);
+            }
+            else if (value.getClass().equals(BigDecimal.class)) {
+                parentObj.put(key, (BigDecimal) value);
             }
             else if (value.getClass().equals(Integer.class)) {
                 parentObj.put(key, (Integer) value);
