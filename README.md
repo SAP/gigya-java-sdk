@@ -1,6 +1,6 @@
 [![Release](https://jitpack.io/v/SAP/gigya-java-sdk.svg)](https://jitpack.io/v/SAP/gigya-java-sdk)
 # Java SDK 
-[Learn more](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4161e13770b21014bbc5a10ce4041860.html)
+[Learn more](https://github.com/SAP/gigya-java-sdk/wiki)
 
 ## Description
 The Java SDK, provides a Java interface for the Gigya API. 
@@ -45,8 +45,8 @@ implementation files('libs/gigya-java-sdk-auth-1.0.1.jar') // only if needed
 * Build via Gradle.
 
 ## Configuration
-* [Obtain a Gigya APIKey and Secret key](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4161e13770b21014bbc5a10ce4041860.html#topicID2__Obtaining_API_Key).
-* Start using according to [documentation](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4161e13770b21014bbc5a10ce4041860.html).
+* [Obtain a Gigya APIKey and Secret key](https://github.com/levistepanov/gigya-java-sdk/wiki#obtaining-sap-customer-data-clouds-api-key-and-secret-key).
+* Start using according to [documentation](https://github.com/levistepanov/gigya-java-sdk/wiki#logging-in-the-user).
 
 ## Limitations
 None
@@ -55,7 +55,7 @@ None
 None
 
 ## How to obtain support
-[Learn more](https://help.sap.com/viewer/8b8d6fffe113457094a17701f63e3d6a/GIGYA/en-US/4167e8a470b21014bbc5a10ce4041860.html)
+Open an issue in this repository.
 
 ## Contributing
 Via pull request to this repository.
