@@ -45,8 +45,8 @@ implementation files('libs/gigya-java-sdk-auth-1.0.1.jar') // only if needed
 * Build via Gradle.
 
 ## Configuration
-* [Obtain a Gigya APIKey and Secret key](https://github.com/levistepanov/gigya-java-sdk/wiki#obtaining-sap-customer-data-clouds-api-key-and-secret-key).
-* Start using according to [documentation](https://github.com/levistepanov/gigya-java-sdk/wiki#logging-in-the-user).
+* [Obtain a Gigya APIKey and Secret key](https://github.com/SAP/gigya-java-sdk/wiki#obtaining-sap-customer-data-clouds-api-key-and-secret-key).
+* Start using according to [documentation](https://github.com/SAP/gigya-java-sdk/wiki#logging-in-the-user).
 
 ## Limitations
 None
