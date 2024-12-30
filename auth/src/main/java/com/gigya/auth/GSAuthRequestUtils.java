@@ -184,21 +184,30 @@ public class GSAuthRequestUtils {
      * @return UID field if validation is successful.
      */
     public static String validateSignature(String jwt, String apiKey, String apiDomain) {
+        // Track whether the cache was initially empty
+        boolean wasCacheEmpty = !publicKeysCache.containsKey(apiDomain.toLowerCase());
+
         // First attempt to validate the JWT
-        String result = attemptValidation(jwt, apiKey, apiDomain, false);
+        String result = attemptValidation(jwt, apiKey, apiDomain);
         if (result != null) {
-            return result;
+            return result; // successfully validated
         }
 
-        // If the first attempt fails, clear the cache and retry
+        // If the cache was empty initially, no need to retry
+        if (wasCacheEmpty) {
+            logger.write("JWT validation failed.");
+            return null;
+        }
+
+        // Log and retry after clearing the cache
         logger.write("JWT validation failed. Clearing cache and retrying due to possible key rotation.");
         publicKeysCache.clear();
 
         // Retry the validation with the cache cleared
-        return attemptValidation(jwt, apiKey, apiDomain, true);
+        return attemptValidation(jwt, apiKey, apiDomain);
     }
 
-    private static String attemptValidation(String jwt, String apiKey, String apiDomain, boolean hasRetried) {
+    private static String attemptValidation(String jwt, String apiKey, String apiDomain) {
         // Extract the key ID (kid) from the JWT header
         final String kid = getKidFromJWSHeader(jwt);
         if (kid == null) {
@@ -207,7 +216,7 @@ public class GSAuthRequestUtils {
         }
 
         // Fetch the public JWK (from cache or network)
-        String publicJWK = getPublicJWK(kid, apiKey, apiDomain, hasRetried);
+        String publicJWK = getPublicJWK(kid, apiKey, apiDomain);
         if (publicJWK == null) {
             // JWT not available.
             logger.write("Failed to fetch JWK public key");
@@ -228,11 +237,11 @@ public class GSAuthRequestUtils {
         return verifyJwt(jwt, apiKey, publicKey);
     }
 
-    private static String getPublicJWK(String kid, String apiKey, String apiDomain, boolean hasRetried) {
+    private static String getPublicJWK(String kid, String apiKey, String apiDomain) {
         String publicJWK = null;
 
-        // If not retrying, try to fetch from cache.
-        if (!hasRetried && publicKeysCache.containsKey(apiDomain.toLowerCase())) {
+        // try to fetch from cache.
+        if (publicKeysCache.containsKey(apiDomain.toLowerCase())) {
             publicJWK = publicKeysCache.get(apiDomain.toLowerCase());
         }
 
