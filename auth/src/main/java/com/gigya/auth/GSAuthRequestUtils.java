@@ -22,7 +22,7 @@ import java.util.*;
 
 public class GSAuthRequestUtils {
 
-    public static final String VERSION = "java_auth_1.0.1";
+    public static final String VERSION = "java_auth_1.0.2";
 
     public static GSLogger logger = new GSLogger();
 
@@ -184,41 +184,73 @@ public class GSAuthRequestUtils {
      * @return UID field if validation is successful.
      */
     public static String validateSignature(String jwt, String apiKey, String apiDomain) {
+        // Track whether the cache was initially empty
+        boolean wasCacheEmpty = !publicKeysCache.containsKey(apiDomain.toLowerCase());
 
+        // First attempt to validate the JWT
+        String result = attemptValidation(jwt, apiKey, apiDomain);
+        if (result != null) {
+            return result; // successfully validated
+        }
+
+        // If the cache was empty initially, no need to retry
+        if (wasCacheEmpty) {
+            logger.write("JWT validation failed.");
+            return null;
+        }
+
+        // Log and retry after clearing the cache
+        logger.write("JWT validation failed. Clearing cache and retrying due to possible key rotation.");
+        publicKeysCache.clear();
+
+        // Retry the validation with the cache cleared
+        return attemptValidation(jwt, apiKey, apiDomain);
+    }
+
+    private static String attemptValidation(String jwt, String apiKey, String apiDomain) {
+        // Extract the key ID (kid) from the JWT header
         final String kid = getKidFromJWSHeader(jwt);
         if (kid == null) {
             logger.write("Failed to parse kid header");
             return null;
         }
 
-        String publicJWK = null;
-
-        // Try to fetch from cache.
-        if (publicKeysCache.containsKey(apiDomain.toLowerCase())) {
-            publicJWK = publicKeysCache.get(apiDomain.toLowerCase());
-        }
-
-        if (publicJWK == null) {
-            // None in cache - fetch from network.
-            publicJWK = fetchPublicJWK(kid, apiKey, apiDomain);
-        }
-
+        // Fetch the public JWK (from cache or network)
+        String publicJWK = getPublicJWK(kid, apiKey, apiDomain);
         if (publicJWK == null) {
             // JWT not available.
-            logger.write("Failed to fetch jwk public key");
+            logger.write("Failed to fetch JWK public key");
             return null;
         }
 
-        final PublicKey publicKey = GSAuthRequestUtils.rsaPublicKeyFromJWKString(publicJWK);
+        // Convert the JWK into a PublicKey instance
+        PublicKey publicKey = GSAuthRequestUtils.rsaPublicKeyFromJWKString(publicJWK);
         if (publicKey == null) {
-            logger.write("Failed to instantiate PublicKey instance from jwk");
+            logger.write("Failed to instantiate PublicKey instance from JWK");
             return null;
         }
 
         // Update public key cache only when it was successfully generated. Useless otherwise.
         publicKeysCache.put(apiDomain.toLowerCase(), publicJWK);
 
+        // Validate the JWT using the generated public key
         return verifyJwt(jwt, apiKey, publicKey);
+    }
+
+    private static String getPublicJWK(String kid, String apiKey, String apiDomain) {
+        String publicJWK = null;
+
+        // try to fetch from cache.
+        if (publicKeysCache.containsKey(apiDomain.toLowerCase())) {
+            publicJWK = publicKeysCache.get(apiDomain.toLowerCase());
+        }
+
+        // None in cache - fetch from network.
+        if (publicJWK == null) {
+            publicJWK = fetchPublicJWK(kid, apiKey, apiDomain);
+        }
+
+        return publicJWK;
     }
 
     /**
