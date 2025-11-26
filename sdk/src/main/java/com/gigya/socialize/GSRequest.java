@@ -1,36 +1,57 @@
 package com.gigya.socialize;
 
+import javax.net.ssl.*;
 import java.io.*;
 import java.net.*;
 import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 /**
- * This class is used for sending a request to Gigya Service.
+ * Unified GSRequest class supporting multiple authentication methods:
+ * - Basic authentication (apiKey + secretKey)
+ * - JWT authentication (userKey + privateKey)
+ * - Anonymous authentication (apiKey only)
+ * - mTLS authentication (apiKey + client certificates)
+ * - OAuth token authentication (accessToken)
+ * 
+ * Authentication is configured via GSConfig or constructor parameters.
  */
 public class GSRequest {
     public static final String VERSION = "java_3.2.4";
 
     public static boolean ENABLE_CONNECTION_POOLING = true;
 
-    protected static long timestampOffsetSec = 0; // used internally by the SDK, to compensate for time diff with server
+    protected static long timestampOffsetSec = 0;
     private static Random randomGenerator = new Random();
     private static final String DEFAULT_API_DOMAIN = "us1.gigya.com";
 
+    // Configuration and authentication
+    private GSConfig config;
+    private AuthMode authMode;
+    
+    // Request properties
     protected String host;
     protected String path;
     protected String accessToken;
     protected String apiKey;
     protected String secretKey;
+    protected String userKey;
+    protected String privateKey;
     protected GSObject params;
     private GSObject urlEncodedParams;
     private Map<String, String> additionalHeaders = new HashMap<String, String>();
     protected boolean useHTTPS = true;
     protected boolean isLoggedIn;
     protected boolean isRetry = false;
-    protected String userKey;
     protected String apiMethod;
     protected String apiDomain = DEFAULT_API_DOMAIN;
     protected String hostOverride = null;
@@ -39,97 +60,192 @@ public class GSRequest {
     protected GSLogger logger = new GSLogger();
     private Proxy proxy = null;
 
-
-    public GSRequest(String accessToken, String apiMethod) {
-        this(null, null, accessToken, apiMethod, null, true, null);
-    }
-
-    public GSRequest(String accessToken, String apiMethod, GSObject clientParams) {
-        this(null, null, accessToken, apiMethod, clientParams, true, null);
-    }
-
-    public GSRequest(String apiKey, String secretKey, String apiMethod, GSObject clientParams) {
-        this(apiKey, secretKey, null, apiMethod, clientParams, false, null);
-    }
-
-    public GSRequest(String apiKey, String secretKey, String apiMethod, boolean useHTTPS) {
-        this(apiKey, secretKey, null, apiMethod, null, useHTTPS, null);
-    }
-
-    public GSRequest(String apiKey, String secretKey, String apiMethod) {
-        this(apiKey, secretKey, null, apiMethod, null, false, null);
-    }
-
-    public GSRequest(String apiKey, String secretKey, String apiMethod, GSObject clientParams, boolean useHTTPS) {
-        this(apiKey, secretKey, null, apiMethod, clientParams, useHTTPS, null);
-    }
-
-    public GSRequest(String apiKey, String secretKey, String accessToken, String apiMethod, GSObject clientParams, boolean useHTTPS) {
-        this(apiKey, secretKey, accessToken, apiMethod, clientParams, useHTTPS, null);
-    }
-
-    public GSRequest(String apiKey, String secretKey, String apiMethod, GSObject clientParams, boolean useHTTPS, String userKey) {
-        this(apiKey, secretKey, null, apiMethod, clientParams, useHTTPS, userKey);
+    // Authentication modes
+    public enum AuthMode {
+        BASIC,      // apiKey + secretKey
+        JWT,        // userKey + privateKey + apiKey
+        ANONYMOUS,  // apiKey only
+        MTLS,       // apiKey + client certificates
+        OAUTH       // accessToken
     }
 
     /**
-     * Constructs a request using an apiKey and a secretKey. Suitable when using
-     * Gigya's proprietary authorization method. To learn more, please refer to
-     * our <a href="http://developers.gigya.com/display/GD/REST+API+with+Gigya's+Authorization+Method"
-     * >Using Gigya's REST API with our proprietary authorization method
-     * Guide</a> Please provide a user ID (UID) in the <em>params</em> object to
-     * specify the user.
-     *
-     * @param apiKey       your Gigya API-Key which can be obtained from the <a href=
-     *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
-     *                     >Site Setup</a> page on Gigya's website (Read more in the <a
-     *                     href=
-     *                     "http://developers.gigya.com/display/GD/Site+Setup"
-     *                     >Site Setup</a> guide).
-     * @param secretKey    your Gigya Secret-Key which can be obtained from the <a href=
-     *                     "https://www.gigya.com/site/partners/settings.aspx#&amp;&amp;userstate=SiteSetup"
-     *                     >Site Setup</a> page on Gigya's website.
-     * @param apiMethod    the Gigya API method to call, including namespace. For
-     *                     example: "socialize.getUserInfo". Please refer to our <a
-     *                     href="http://developers.gigya.com/display/GD/REST+API"
-     *                     >REST API reference</a> for the list of available methods.
-     * @param clientParams a GSObject object that contains the parameters for the Gigya
-     *                     API method to call. Please refer to our <a
-     *                     href="http://developers.gigya.com/display/GD/REST+API"
-     *                     >REST API reference</a> and find in the specific method
-     *                     reference the list of method parameters. Please provide a user
-     *                     ID (UID) in the params object to specify the user.
-     * @param useHTTPS     this parameter determines whether the request to Gigya will be
-     *                     sent over HTTP or HTTPS. To send of HTTPS, please set this
-     *                     parameter to true. The library uses HTTP (the request is
-     *                     auth with the session's secret key) and only uses HTTPS if
-     *                     the secret is not present. but you can use this parameter to
-     *                     override the decision.
-     * @param userKey      A key of an administrative user with extra permissions.
-     *                     If this parameter is provided, then the secretKey parameter is assumed to be
-     *                     the admin user's secret key and not the site's secret key.
+     * Default constructor - uses GSConfig singleton for configuration
      */
-    public GSRequest(String apiKey, String secretKey, String accessToken, String apiMethod, GSObject clientParams, boolean useHTTPS, String userKey) {
-        if (apiMethod == null || apiMethod.length() == 0)
-            return;
+    public GSRequest() {
+        this.config = GSConfig.getInstance();
+        initializeFromConfig();
+    }
 
-        if (clientParams == null)
-            this.params = new GSObject();
-        else
-            this.params = clientParams.clone();
+    /**
+     * Constructor with custom configuration
+     */
+    public GSRequest(GSConfig config) {
+        this.config = config != null ? config : GSConfig.getInstance();
+        initializeFromConfig();
+    }
 
+    /**
+     * Constructor with API method - uses GSConfig singleton
+     */
+    public GSRequest(String apiMethod) {
+        this();
         this.apiMethod = apiMethod;
+    }
+
+    /**
+     * Constructor with custom config and API method
+     */
+    public GSRequest(GSConfig config, String apiMethod) {
+        this(config);
+        this.apiMethod = apiMethod;
+    }
+
+    // Legacy constructors for backward compatibility
+    public GSRequest(String accessToken, String apiMethod) {
+        this();
+        this.accessToken = accessToken;
+        this.apiMethod = apiMethod;
+        this.authMode = AuthMode.OAUTH;
+    }
+
+    public GSRequest(String accessToken, String apiMethod, GSObject clientParams) {
+        this(accessToken, apiMethod);
+        setParams(clientParams);
+    }
+
+    public GSRequest(String apiKey, String secretKey, String apiMethod, GSObject clientParams) {
+        this();
+        this.apiKey = apiKey;
+        this.secretKey = secretKey;
+        this.apiMethod = apiMethod;
+        this.authMode = AuthMode.BASIC;
+        setParams(clientParams);
+    }
+
+    public GSRequest(String apiKey, String secretKey, String apiMethod, boolean useHTTPS) {
+        this(apiKey, secretKey, apiMethod, null);
+        this.useHTTPS = useHTTPS;
+    }
+
+    public GSRequest(String apiKey, String secretKey, String apiMethod) {
+        this(apiKey, secretKey, apiMethod, null);
+    }
+
+    public GSRequest(String apiKey, String secretKey, String apiMethod, GSObject clientParams, boolean useHTTPS) {
+        this(apiKey, secretKey, apiMethod, clientParams);
+        this.useHTTPS = useHTTPS;
+    }
+
+    public GSRequest(String apiKey, String secretKey, String accessToken, String apiMethod, GSObject clientParams, boolean useHTTPS) {
+        this();
         this.apiKey = apiKey;
         this.secretKey = secretKey;
         this.accessToken = accessToken;
+        this.apiMethod = apiMethod;
         this.useHTTPS = useHTTPS;
+        setParams(clientParams);
+        determineAuthMode();
+    }
+
+    public GSRequest(String apiKey, String secretKey, String apiMethod, GSObject clientParams, boolean useHTTPS, String userKey) {
+        this(apiKey, secretKey, null, apiMethod, clientParams, useHTTPS);
         this.userKey = userKey;
+        determineAuthMode();
+    }
+
+    public GSRequest(String apiKey, String secretKey, String accessToken, String apiMethod, GSObject clientParams, boolean useHTTPS, String userKey) {
+        this(apiKey, secretKey, accessToken, apiMethod, clientParams, useHTTPS);
+        this.userKey = userKey;
+        determineAuthMode();
+    }
+
+    /**
+     * Initialize request from GSConfig
+     */
+    private void initializeFromConfig() {
+        if (config != null) {
+            this.apiKey = config.getApiKey();
+            this.secretKey = config.getSecretKey();
+            this.userKey = config.getUserKey();
+            this.privateKey = config.getPrivateKey();
+            this.apiDomain = config.getApiDomain() != null ? config.getApiDomain() : DEFAULT_API_DOMAIN;
+        }
+        
+        if (params == null) {
+            params = new GSObject();
+        }
+        
+        determineAuthMode();
+    }
+
+    /**
+     * Determine authentication mode based on available credentials
+     */
+    private void determineAuthMode() {
+        if (accessToken != null) {
+            authMode = AuthMode.OAUTH;
+        } else if (config != null && config.hasMtlsAuth()) {
+            authMode = AuthMode.MTLS;
+        } else if (config != null && config.hasJwtAuth()) {
+            authMode = AuthMode.JWT;
+        } else if (config != null && config.hasBasicAuth()) {
+            authMode = AuthMode.BASIC;
+        } else if (config != null && config.hasAnonymousAuth()) {
+            authMode = AuthMode.ANONYMOUS;
+        } else if (userKey != null && privateKey != null && apiKey != null) {
+            authMode = AuthMode.JWT;
+        } else if (apiKey != null && secretKey != null) {
+            authMode = AuthMode.BASIC;
+        } else if (apiKey != null) {
+            authMode = AuthMode.ANONYMOUS;
+        } else {
+            authMode = AuthMode.ANONYMOUS; // Default fallback
+        }
+    }
+
+    // Fluent API setters
+    public GSRequest setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+        determineAuthMode();
+        return this;
+    }
+
+    public GSRequest setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+        determineAuthMode();
+        return this;
+    }
+
+    public GSRequest setUserKey(String userKey) {
+        this.userKey = userKey;
+        determineAuthMode();
+        return this;
+    }
+
+    public GSRequest setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+        determineAuthMode();
+        return this;
+    }
+
+    public GSRequest setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+        determineAuthMode();
+        return this;
+    }
+
+    public GSRequest setApiDomain(String apiDomain) {
+        if (apiDomain != null) {
+            this.apiDomain = apiDomain;
+        } else {
+            this.apiDomain = DEFAULT_API_DOMAIN;
+        }
+        return this;
     }
 
     /**
      * Allows passing an existing GSLogger
-     *
-     * @param logger
      */
     public void setLogger(GSLogger logger) {
         if (logger != null) {
@@ -139,8 +255,6 @@ public class GSRequest {
 
     /**
      * Retrieves the logger object
-     *
-     * @return logger object
      */
     public GSLogger getLogger() {
         return this.logger;
@@ -166,90 +280,41 @@ public class GSRequest {
     }
 
     /**
-     * Sets a request parameter with a value. If the request previously
-     * contained a mapping for the key, the old value is replaced by the
-     * specified value.
-     *
-     * @param key   key with which the specified value is to be associated
-     * @param value a String value to be associated with the specified key
+     * Sets a request parameter with a value
      */
     public void setParam(String key, String value) {
         params.put(key, value);
     }
 
-    /**
-     * Sets a request parameter with a value. If the request previously
-     * contained a mapping for the key, the old value is replaced by the
-     * specified value.
-     *
-     * @param key   key with which the specified value is to be associated
-     * @param value a int value to be associated with the specified key
-     */
     public void setParam(String key, int value) {
         params.put(key, value);
     }
 
-    /**
-     * Sets a request parameter with a value. If the request previously
-     * contained a mapping for the key, the old value is replaced by the
-     * specified value.
-     *
-     * @param key   key with which the specified value is to be associated
-     * @param value a long value to be associated with the specified key
-     */
     public void setParam(String key, long value) {
         params.put(key, value);
     }
 
-    /**
-     * Sets a request parameter with a value. If the request previously
-     * contained a mapping for the key, the old value is replaced by the
-     * specified value.
-     *
-     * @param key   key with which the specified value is to be associated
-     * @param value a boolean value to be associated with the specified key
-     */
     public void setParam(String key, boolean value) {
         params.put(key, value);
     }
 
-    /**
-     * Sets a request parameter with a value. If the request previously
-     * contained a mapping for the key, the old value is replaced by the
-     * specified value.
-     *
-     * @param key   key with which the specified value is to be associated
-     * @param value a GSObject value to be associated with the specified key
-     */
     public void setParam(String key, GSObject value) {
         params.put(key, value);
     }
 
-    /**
-     * Sets a request parameter with a value. If the request previously
-     * contained a mapping for the key, the old value is replaced by the
-     * specified value.
-     *
-     * @param key   key with which the specified value is to be associated
-     * @param value a GSArray value to be associated with the specified key
-     */
     public void setParam(String key, GSArray value) {
         params.put(key, value);
     }
 
     /**
-     * Returns a GSObject object containing the parameters of this request.
-     *
-     * @return the <em>params</em> field of this request.
+     * Returns a GSObject object containing the parameters of this request
      */
     public GSObject getParams() {
         return params;
     }
 
     /**
-     * Sets a proxy.
-     *
-     * @param p a proxy settings object
+     * Sets a proxy
      */
     public void setProxy(Proxy p) {
         this.proxy = p;
@@ -260,7 +325,7 @@ public class GSRequest {
     }
 
     /**
-     * Sets a GSObject object containing the parameters of this request.
+     * Sets a GSObject object containing the parameters of this request
      */
     public void setParams(GSObject clientParams) {
         if (clientParams == null)
@@ -270,16 +335,10 @@ public class GSRequest {
     }
 
     /**
-     * Sets the domain used for making API calls. <br />
-     * Clients with sites defined under Gigya's European data center should set  it to "eu1.gigya.com". To verify site location contact your implementation manager.
-     *
-     * @param apiDomain the domain of the data center to be used. For example: "eu1.gigya.com" for Europe data center
+     * Sets the domain used for making API calls
      */
     public void setAPIDomain(String apiDomain) {
-        if (apiDomain != null)
-            this.apiDomain = apiDomain;
-        else
-            this.apiDomain = DEFAULT_API_DOMAIN;
+        setApiDomain(apiDomain);
     }
 
     public void setHostOverride(String host) {
@@ -287,27 +346,20 @@ public class GSRequest {
     }
 
     /**
-     * Sends the request synchronously. The method returns a GSResponse object
-     * which represents Gigya's response.
-     *
-     * @return a GSResponse object representing Gigya's response
+     * Sends the request synchronously
      */
     public GSResponse send() {
         return send(-1);
     }
 
     /**
-     * Sends the request synchronously. The method returns a GSResponse object
-     * which represents Gigya's response
-     *
-     * @param timeoutMS using this parameter you may set a timeout to this request.
-     *                  The timeout is the number of milliseconds till returning
-     *                  timeout response. If the timeout expires, the server will
-     *                  return a response with a "Request Timeout" error (error code
-     *                  504002).
-     * @return a GSResponse object representing Gigya's response
+     * Sends the request synchronously with timeout
      */
     public GSResponse send(int timeoutMS) {
+        if (this.apiMethod == null) {
+            return new GSResponse(null, this.params, 400002, "API method not specified", logger);
+        }
+
         if (this.apiMethod.startsWith("/"))
             this.apiMethod = this.apiMethod.replaceFirst("/", "");
 
@@ -330,21 +382,20 @@ public class GSRequest {
         logger.write("apiKey", apiKey);
         logger.write("userKey", userKey);
         logger.write("apiMethod", apiMethod);
+        logger.write("authMode", authMode != null ? authMode.toString() : "NONE");
         logger.write("params", params);
         logger.write("useHTTPS", useHTTPS);
 
-
-        // Evaluate request authorization conditions.
+        // Evaluate request authorization conditions
         if (!evaluateRequestAuthorization()) {
-            return new GSResponse(this.apiMethod, this.params, 400002, logger);
+            return new GSResponse(this.apiMethod, this.params, 400002, "Insufficient authentication credentials", logger);
         }
 
         try {
             GSResponse res = sendRequest("POST", this.host, this.path,
                     params, apiKey, secretKey, this.useHTTPS, this.isLoggedIn,
                     timeoutMS);
-            // if error code indicates timestamp expiration, retry the request.
-            // (sendRequest calculates the tsOffset)
+            // if error code indicates timestamp expiration, retry the request
             if (res.getErrorCode() == 403002 && !isRetry) {
                 isRetry = true;
                 params.remove("sig");
@@ -373,29 +424,35 @@ public class GSRequest {
     }
 
     /**
-     * Override for a different authorization clause.
-     *
-     * @return True if authorized to make the request.
+     * Evaluate request authorization based on authentication mode
      */
     protected boolean evaluateRequestAuthorization() {
-        return this.accessToken != null || this.secretKey != null || (this.userKey != null && this.apiKey != null);
+        switch (authMode) {
+            case OAUTH:
+                return this.accessToken != null;
+            case BASIC:
+                return this.apiKey != null && this.secretKey != null;
+            case JWT:
+                return this.userKey != null && this.privateKey != null && this.apiKey != null;
+            case ANONYMOUS:
+                return this.apiKey != null;
+            case MTLS:
+                return this.apiKey != null && (config != null && config.hasMtlsConfig());
+            default:
+                return this.accessToken != null || this.secretKey != null || 
+                       (this.userKey != null && this.apiKey != null);
+        }
     }
 
     /**
-     * Sends the request asynchronously.
-     *
-     * @param listener an Object which implements the GSResponseListener
+     * Sends the request asynchronously
      */
     public void send(GSResponseListener listener) {
         send(listener, null);
     }
 
     /**
-     * Sends the request asynchronously.
-     *
-     * @param listener an Object which implements the GSResponseListener
-     * @param context  this object will be passed untouched and received back in the
-     *                 response
+     * Sends the request asynchronously with context
      */
     public void send(final GSResponseListener listener, final Object context) {
         Runnable r = new Runnable() {
@@ -408,14 +465,10 @@ public class GSRequest {
         };
         Thread t = new Thread(r);
         t.start();
-
     }
 
     /**
-     * Converts a GSObject to a query string.
-     *
-     * @param params the GSObject to convert
-     * @return the query string
+     * Static utility: Converts a GSObject to a query string
      */
     public static String buildQS(GSObject params) {
         StringBuilder req = new StringBuilder();
@@ -433,7 +486,6 @@ public class GSRequest {
         return req.toString();
     }
 
-    /////////////////////////////////////// PRIVATE & PROTECTED ////////////////////////////////////////////
     private String buildQS() {
         StringBuilder req = new StringBuilder();
         String val;
@@ -450,59 +502,89 @@ public class GSRequest {
         return req.toString();
     }
 
+    /**
+     * Sign request based on authentication mode
+     */
     protected void signRequest(String token, String secret, String httpMethod, String resourceURI)
             throws UnsupportedEncodingException, InvalidKeyException, MalformedURLException {
-        if (this.accessToken != null) {
-            params.put("oauth_token", this.accessToken);
-        } else {
-            if (!params.containsKey("oauth_token") && token != null) {
-                params.put("apiKey", token);
-            }
+        
+        switch (authMode) {
+            case OAUTH:
+                if (this.accessToken != null) {
+                    params.put("oauth_token", this.accessToken);
+                }
+                break;
+                
+            case JWT:
+                // Compose JWT and add to request header
+                final String jwt = GSAuthUtils.composeJwt(this.userKey, this.privateKey);
+                if (jwt == null) {
+                    logger.write("Failed to generate authorization JWT");
+                    throw new InvalidKeyException("Failed to generate JWT");
+                }
+                addHeader("Authorization", "Bearer " + jwt);
+                // API key is required
+                if (token != null) {
+                    params.put("apiKey", token);
+                }
+                break;
+                
+            case ANONYMOUS:
+                // Only API key required
+                if (this.apiKey != null) {
+                    params.put("apiKey", this.apiKey);
+                }
+                break;
+                
+            case MTLS:
+                // API key is required for mTLS, certificates handled in configureConnection
+                if (token != null) {
+                    params.put("apiKey", token);
+                }
+                break;
+                
+            case BASIC:
+            default:
+                // Original signing logic for basic authentication
+                if (this.accessToken != null) {
+                    params.put("oauth_token", this.accessToken);
+                } else {
+                    if (!params.containsKey("oauth_token") && token != null) {
+                        params.put("apiKey", token);
+                    }
 
-            if (this.userKey != null)
-                params.put("userKey", this.userKey);
+                    if (this.userKey != null)
+                        params.put("userKey", this.userKey);
 
-            if (secret != null) {
-                String timestamp = Long.toString((System
-                        .currentTimeMillis() / 1000)
-                        + timestampOffsetSec);
+                    if (secret != null) {
+                        String timestamp = Long.toString((System
+                                .currentTimeMillis() / 1000)
+                                + timestampOffsetSec);
 
-                String nonce = System.currentTimeMillis()
-                        + "_"
-                        + randomGenerator.nextInt();
+                        String nonce = System.currentTimeMillis()
+                                + "_"
+                                + randomGenerator.nextInt();
 
-                params.put("timestamp", timestamp);
-                params.put("nonce", nonce);
+                        params.put("timestamp", timestamp);
+                        params.put("nonce", nonce);
 
-                String baseString = SigUtils.calcOAuth1BaseString(
-                        httpMethod, resourceURI, this);
-                logger.write("baseString", baseString);
+                        String baseString = SigUtils.calcOAuth1BaseString(
+                                httpMethod, resourceURI, this);
+                        logger.write("baseString", baseString);
 
-                String signature = SigUtils.getOAuth1Signature(
-                        baseString, secret);
+                        String signature = SigUtils.getOAuth1Signature(
+                                baseString, secret);
 
-                params.put("sig", signature);
-                logger.write("sig", signature);
-            }
+                        params.put("sig", signature);
+                        logger.write("sig", signature);
+                    }
+                }
+                break;
         }
     }
 
     /**
      * Send the actual HTTP/S request
-     *
-     * @param httpMethod "POST" or "GET"
-     * @param domain
-     * @param path
-     * @param params
-     * @param token      session token
-     * @param secret     session secret
-     * @param useHTTPS   override HTTPS usage
-     * @return token and secret can be: 1. session secret & session token - for
-     * mobile login 2. OAuth token & null - from OAuth login endpoint 3.
-     * apiKey & secret - for server-to-server calls 4. apiKey & null -
-     * when passing requiresLogin=false, for calls that don't require
-     * login
-     * @throws Exception
      */
     protected GSResponse sendRequest(String httpMethod,
                                      String domain,
@@ -534,7 +616,7 @@ public class GSRequest {
 
             logger.write("sdk", params.getString("sdk"));
 
-            // Sign the request.
+            // Sign the request based on auth mode
             signRequest(token, secret, httpMethod, resourceURI);
 
             String data = this.buildQS();
@@ -548,7 +630,7 @@ public class GSRequest {
             else
                 conn = url.openConnection(proxy);
 
-            // Allow subclasses to configure the connection (e.g., add client certificates)
+            // Configure connection (e.g., add client certificates for mTLS)
             configureConnection(conn);
 
             if (timeoutMS != -1) {
@@ -556,7 +638,7 @@ public class GSRequest {
                 conn.setReadTimeout(timeoutMS);
             }
 
-            // Add additional custom headers.
+            // Add additional custom headers
             if (additionalHeaders != null) {
                 for (Map.Entry<String, String> entry : additionalHeaders.entrySet()) {
                     conn.setRequestProperty(entry.getKey(), entry.getValue());
@@ -659,10 +741,7 @@ public class GSRequest {
     }
 
     /**
-     * Applies URL encoding rules to the String value, and returns the outcome.
-     *
-     * @param value the string to encode
-     * @return the URL encoded string
+     * Applies URL encoding rules to the String value
      */
     public static String UrlEncode(String value) {
         if (value == null)
@@ -680,14 +759,123 @@ public class GSRequest {
     }
 
     /**
-     * Hook method that subclasses can override to configure the URLConnection
-     * before the request is sent. For example, to apply client certificates for mTLS.
-     *
-     * @param conn The URLConnection that will be used for the request
+     * Configure the URLConnection before the request is sent.
+     * For mTLS authentication, this applies client certificates.
      */
     protected void configureConnection(URLConnection conn) {
-        // Default implementation does nothing
-        // Subclasses can override to add custom configuration
+        if (authMode == AuthMode.MTLS && conn instanceof HttpsURLConnection) {
+            try {
+                configureMtlsConnection((HttpsURLConnection) conn);
+            } catch (Exception e) {
+                logger.write("GSRequest", "Failed to configure mTLS: " + e.getMessage());
+                logger.write(e);
+                throw new RuntimeException("mTLS configuration failed: " + e.getMessage(), e);
+            }
+        }
     }
 
+    /**
+     * Configure mTLS for HTTPS connections
+     */
+    private void configureMtlsConnection(HttpsURLConnection httpsConn) throws Exception {
+        if (config == null || !config.hasMtlsConfig()) {
+            throw new IllegalStateException("mTLS configuration not available");
+        }
+
+        CertificateBundle bundle = loadMtlsCertificates();
+        if (bundle == null) {
+            throw new IllegalStateException("Failed to load client certificates - cannot proceed with mTLS");
+        }
+
+        SSLContext sslContext = createMtlsSSLContext(bundle);
+        httpsConn.setSSLSocketFactory(sslContext.getSocketFactory());
+        httpsConn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
+    }
+
+    /**
+     * Load mTLS certificates and private key
+     */
+    private CertificateBundle loadMtlsCertificates() {
+        try {
+            String certPem = config.loadMtlsCertificate();
+            String keyPem = config.loadMtlsPrivateKey();
+
+            PrivateKey privateKey = parseMtlsPrivateKeyPkcs8(keyPem);
+            X509Certificate[] chain = parseMtlsCertificateChain(certPem);
+
+            if (privateKey == null || chain.length == 0) {
+                return null;
+            }
+
+            return new CertificateBundle(privateKey, chain);
+        } catch (Exception e) {
+            logger.write("GSRequest", "Error loading mTLS certificates: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Create SSL context for mTLS
+     */
+    private SSLContext createMtlsSSLContext(CertificateBundle bundle) throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        char[] password = config.getMtlsPassword();
+        keyStore.load(null, password);
+        keyStore.setKeyEntry("client", bundle.privateKey, password, bundle.chain);
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(keyStore, password);
+
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init((KeyStore) null);
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
+
+        return sslContext;
+    }
+
+    /**
+     * Inner class to hold certificate bundle
+     */
+    private static class CertificateBundle {
+        final PrivateKey privateKey;
+        final X509Certificate[] chain;
+
+        CertificateBundle(PrivateKey privateKey, X509Certificate[] chain) {
+            this.privateKey = privateKey;
+            this.chain = chain;
+        }
+    }
+
+    // mTLS Certificate parsing helpers
+    private static PrivateKey parseMtlsPrivateKeyPkcs8(String pem) throws Exception {
+        String base64Key = trimMtlsKey(pem);
+        return GSAuthUtils.rsaPrivateKeyFromBase64String(base64Key);
+    }
+
+    private static String trimMtlsKey(String pem) {
+        return pem
+                .replaceAll("-----BEGIN PRIVATE KEY-----", "")
+                .replaceAll("-----END PRIVATE KEY-----", "")
+                .replaceAll("-----BEGIN RSA PRIVATE KEY-----", "")
+                .replaceAll("-----END RSA PRIVATE KEY-----", "")
+                .replaceAll("\\s+", "");
+    }
+
+    private static X509Certificate[] parseMtlsCertificateChain(String pem) throws Exception {
+        Pattern pattern = Pattern.compile("-----BEGIN CERTIFICATE-----(.*?)-----END CERTIFICATE-----", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(pem);
+        List<X509Certificate> list = new ArrayList<>();
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+        while (matcher.find()) {
+            String block = matcher.group(1).replaceAll("\\s", "");
+            byte[] certBytes = Base64.getDecoder().decode(block);
+            X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));
+            list.add(cert);
+        }
+
+        return list.toArray(new X509Certificate[0]);
+    }
 }
