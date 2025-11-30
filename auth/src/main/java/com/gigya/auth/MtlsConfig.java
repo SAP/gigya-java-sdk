@@ -13,47 +13,60 @@ import java.nio.file.Paths;
  */
 public class MtlsConfig {
 
-    private String certificatePath;
-    private String privateKeyPath;
+    private final String certificatePem;
+    private final String certificatePath;
 
-    private String certificatePem;
-    private String privateKeyPem;
+    private final String privateKeyPem;
+    private final String privateKeyPath;
 
-    private char[] keyStorePassword;
+    private final char[] keyStorePassword;
 
-    public MtlsConfig() {}
+    public MtlsConfig(
+            String certificatePem,
+            String certificatePath,
+            String privateKeyPem,
+            String privateKeyPath,
+            char[] keyStorePassword
+    ) {
+        this.certificatePem = certificatePem;
+        this.certificatePath = certificatePath;
+        this.privateKeyPem = privateKeyPem;
+        this.privateKeyPath = privateKeyPath;
+        this.keyStorePassword = (keyStorePassword != null)
+                ? keyStorePassword.clone()
+                : "changeit".toCharArray();
 
-    public MtlsConfig setCertificatePath(String path) {
-        this.certificatePath = path;
-        return this;
+        validate();
     }
 
-    public MtlsConfig setPrivateKeyPath(String path) {
-        this.privateKeyPath = path;
-        return this;
+    // ---------- STATIC FACTORY METHODS ---------- //
+
+    /**
+     * Use PEM strings, default password
+     */
+    public static MtlsConfig fromPem(String certPem, String keyPem) {
+        return new MtlsConfig(certPem, null, keyPem, null, null);
     }
 
-    public MtlsConfig setCertificatePem(String pem) {
-        this.certificatePem = pem;
-        return this;
+    /**
+     * Use PEM strings + custom password
+     */
+    public static MtlsConfig fromPem(String certPem, String keyPem, char[] password) {
+        return new MtlsConfig(certPem, null, keyPem, null, password);
     }
 
-    public MtlsConfig setPrivateKeyPem(String pem) {
-        this.privateKeyPem = pem;
-        return this;
+    /**
+     * Use file paths, default password
+     */
+    public static MtlsConfig fromFiles(String certPath, String keyPath) {
+        return new MtlsConfig(null, certPath, null, keyPath, null);
     }
 
-    public MtlsConfig setKeyStorePassword(char[] keyStorePassword) {
-        this.keyStorePassword = keyStorePassword;
-        return this;
-    }
-
-    public static MtlsConfig fromDefaultLocation() {
-        MtlsConfig cfg = new MtlsConfig();
-        Path base = Paths.get("config", "mtls");
-        cfg.certificatePath = base.resolve("client.pem").toString();
-        cfg.privateKeyPath = base.resolve("client.key").toString();
-        return cfg;
+    /**
+     * Use file paths + custom password
+     */
+    public static MtlsConfig fromFiles(String certPath, String keyPath, char[] password) {
+        return new MtlsConfig(null, certPath, null, keyPath, password);
     }
 
     public char[] getPassword() {
@@ -90,4 +103,3 @@ public class MtlsConfig {
                 (filePath != null && new File(filePath).exists());
     }
 }
-

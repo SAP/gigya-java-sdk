@@ -15,32 +15,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * GSAuthMtlsRequest - A request class that uses mutual TLS (mTLS) authentication
- * This class applies client certificates ONLY to connections created by this class,
- * by overriding the configureConnection() hook method.
+ * GSAuthMtlsRequest - A request class that uses mutual TLS (mTLS) authentication.
+ * Accepts client certificate & private key via PEM string or file path (either form is acceptable).
  */
 public class GSAuthMtlsRequest extends GSRequest {
 
     private final MtlsConfig mtlsConfig;
 
     /**
-     * Constructor for mTLS request.
-     * @param apiKey     Site API key.
-     * @param apiMethod  Request API method (e.g. "accounts.login").
-     * @param mtlsConfig mTLS configuration (PEMs or file paths).
+     * Constructor: provide mTLS configuration via MtlsConfig object.
+     *
+     * @param apiKey Site API key.
+     * @param apiMethod The API method to call (e.g., "accounts.getAccountInfo")
+     * @param mtlsConfig The mTLS configuration containing certificate and private key (as PEM strings or file paths)
      */
     public GSAuthMtlsRequest(String apiKey, String apiMethod, MtlsConfig mtlsConfig) {
         super(apiKey, null, null, apiMethod, null, true, null);
         if (mtlsConfig == null) {
-            this.mtlsConfig = MtlsConfig.fromDefaultLocation();
-        } else {
-            this.mtlsConfig = mtlsConfig;
+            throw new IllegalArgumentException("MtlsConfig cannot be null");
         }
-        this.mtlsConfig.validate();
-    }
-
-    public GSAuthMtlsRequest(String apiKey, String apiMethod) {
-        this(apiKey, apiMethod, null);
+        this.mtlsConfig = mtlsConfig;
+        mtlsConfig.validate();
     }
 
     @Override
@@ -54,28 +49,20 @@ public class GSAuthMtlsRequest extends GSRequest {
         return true;
     }
 
-    /**
-     * Override hook method to apply client certificates to HTTPS connections.
-     * This method is called by GSRequest.sendRequest() after creating the connection.
-     */
     @Override
     protected void configureConnection(URLConnection conn) {
         if (!(conn instanceof HttpsURLConnection)) {
             return;
         }
 
+        CertificateBundle bundle = loadCertificates();
+        if (bundle == null) {
+            throw new IllegalStateException("Failed to load client certificates - cannot proceed with mTLS");
+        }
+
         try {
-            HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
-
-            CertificateBundle bundle = loadCertificates();
-            if (bundle == null) {
-                throw new IllegalStateException("Failed to load client certificates - cannot proceed with mTLS");
-            }
-
             SSLContext sslContext = createSSLContext(bundle);
-
-            applyCertificatesToConnection(httpsConn, sslContext);
-
+            applyCertificatesToConnection((HttpsURLConnection) conn, sslContext);
         } catch (Exception e) {
             logger.write("GSAuthMtlsRequest", "Failed to configure mTLS: " + e.getMessage());
             logger.write(e);
@@ -83,20 +70,13 @@ public class GSAuthMtlsRequest extends GSRequest {
         }
     }
 
-    /**
-     * Load client certificates and private key from files.
-     *
-     * @return CertificateBundle containing private key and certificate chain, or null if loading fails
-     */
     private CertificateBundle loadCertificates() {
         try {
             String certPem = mtlsConfig.loadCertificate();
-            String keyPem  = mtlsConfig.loadPrivateKey();
-
+            String keyPem = mtlsConfig.loadPrivateKey();
             PrivateKey privateKey = parsePrivateKeyPkcs8(keyPem);
             X509Certificate[] chain = parseCertificateChain(certPem);
 
-            // Validate
             if (privateKey == null || chain.length == 0) {
                 return null;
             }
@@ -108,15 +88,7 @@ public class GSAuthMtlsRequest extends GSRequest {
         }
     }
 
-    /**
-     * Create an SSLContext configured with client certificates and trust settings.
-     *
-     * @param bundle The certificate bundle containing private key and certificate chain
-     * @return Configured SSLContext
-     * @throws Exception if SSL context creation fails
-     */
     private SSLContext createSSLContext(CertificateBundle bundle) throws Exception {
-        // Build KeyStore with client key + certificate chain
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         char[] password = mtlsConfig.getPassword();
         keyStore.load(null, password);
@@ -168,7 +140,7 @@ public class GSAuthMtlsRequest extends GSRequest {
         return pem
                 .replaceAll("-----BEGIN PRIVATE KEY-----", "")
                 .replaceAll("-----END PRIVATE KEY-----", "")
-                .replaceAll("-----BEGIN RSA PRIVATE KEY-----", "")  // Also handle PKCS#1
+                .replaceAll("-----BEGIN RSA PRIVATE KEY-----", "")
                 .replaceAll("-----END RSA PRIVATE KEY-----", "")
                 .replaceAll("\\s+", "");
     }
@@ -176,7 +148,7 @@ public class GSAuthMtlsRequest extends GSRequest {
     private static X509Certificate[] parseCertificateChain(String pem) throws Exception {
         Pattern pattern = Pattern.compile("-----BEGIN CERTIFICATE-----(.*?)-----END CERTIFICATE-----", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(pem);
-        List<X509Certificate> list = new ArrayList<>();
+        List<X509Certificate> list = new ArrayList<X509Certificate>();
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
         while (matcher.find()) {
