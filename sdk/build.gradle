@@ -8,6 +8,7 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:1.7.4'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.vintage:junit-vintage-engine'
     testImplementation 'org.json:json:20240303'
 
     compileOnly 'org.json:json:20240303'
@@ -16,4 +17,3 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
