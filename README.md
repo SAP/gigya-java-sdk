@@ -48,6 +48,58 @@ implementation files('libs/gigya-java-sdk-auth-1.0.2.jar') // only if needed
 * [Obtain a Gigya APIKey and Secret key](https://github.com/SAP/gigya-java-sdk/wiki#obtaining-sap-customer-data-clouds-api-key-and-secret-key).
 * Start using according to [documentation](https://github.com/SAP/gigya-java-sdk/wiki#logging-in-the-user).
 
+## Using GSAuthMtlsRequest (Mutual TLS Authentication)
+
+For high-security server-to-server communication, use `GSAuthMtlsRequest` with client certificates instead of traditional credentials.
+
+### Example with Certificate Files
+
+```java
+import com.gigya.auth.GSAuthMtlsRequest;
+import com.gigya.auth.MtlsConfig;
+import com.gigya.socialize.GSResponse;
+
+// Create mTLS config with certificate file paths
+MtlsConfig config = MtlsConfig.fromFiles(
+    "certs/client.pem",    // Path to client certificate
+    "certs/client.key"     // Path to private key
+);
+
+// Create and send request
+GSAuthMtlsRequest request = new GSAuthMtlsRequest(
+    "your-api-key",
+    "accounts.getAccountInfo",
+    config
+);
+
+request.setParam("UID", "user123");
+GSResponse response = request.send();
+
+if (response.getErrorCode() == 0) {
+    System.out.println("Success: " + response.getResponseText());
+}
+```
+
+### Example with PEM Strings (Environment Variables)
+
+```java
+// Load certificates from environment variables
+String certPem = System.getenv("MTLS_CERT_PEM");
+String keyPem = System.getenv("MTLS_KEY_PEM");
+
+// Create mTLS config with PEM strings
+MtlsConfig config = MtlsConfig.fromPem(certPem, keyPem);
+
+GSAuthMtlsRequest request = new GSAuthMtlsRequest(
+    System.getenv("GIGYA_API_KEY"),
+    "accounts.getAccountInfo",
+    config
+);
+
+request.setParam("UID", "user123");
+GSResponse response = request.send();
+```
+
 ## Limitations
 None
 

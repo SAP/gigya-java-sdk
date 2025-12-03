@@ -548,6 +548,9 @@ public class GSRequest {
             else
                 conn = url.openConnection(proxy);
 
+            // Allow subclasses to configure the connection (e.g., add client certificates)
+            configureConnection(conn);
+
             if (timeoutMS != -1) {
                 conn.setConnectTimeout(timeoutMS);
                 conn.setReadTimeout(timeoutMS);
@@ -674,6 +677,17 @@ public class GSRequest {
 
     public void addHeader(String key, String value) {
         additionalHeaders.put(key, value);
+    }
+
+    /**
+     * Hook method that subclasses can override to configure the URLConnection
+     * before the request is sent. For example, to apply client certificates for mTLS.
+     *
+     * @param conn The URLConnection that will be used for the request
+     */
+    protected void configureConnection(URLConnection conn) {
+        // Default implementation does nothing
+        // Subclasses can override to add custom configuration
     }
 
 }
