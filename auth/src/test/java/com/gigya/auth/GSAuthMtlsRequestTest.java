@@ -186,5 +186,90 @@ public class GSAuthMtlsRequestTest extends TestCase {
         }
     }
 
+    // ---- getMtlsDomain tests ----
+
+    @Test
+    public void testGetMtlsDomainDefaultUs1() {
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        // Default apiDomain is us1.gigya.com
+        assertEquals("mtls.us1.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainEu1() {
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain("eu1.gigya.com");
+        assertEquals("mtls.eu1.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainEu2() {
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain("eu2.gigya.com");
+        assertEquals("mtls.eu2.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainAu1() {
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain("au1.gigya.com");
+        assertEquals("mtls.au1.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainGlobal() {
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain("global.gigya.com");
+        assertEquals("mtls.global.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainStaging() {
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain("us1-st1.gigya.com");
+        assertEquals("mtls.us1-st1.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainFallbackWhenNullDomain() {
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain(null);
+        assertEquals("mtls.us1.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainFallbackWhenEmptyString() {
+        // setAPIDomain("") stores empty string; no dot → fallback
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain("");
+        assertEquals("mtls.us1.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainBareDomainNoDatacenter() {
+        // "gigya.com" has no datacenter prefix; first segment is "gigya"
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain("gigya.com");
+        assertEquals("mtls.gigya.gigya.com", request.getMtlsDomain());
+    }
+
+    @Test
+    public void testGetMtlsDomainFallbackWhenLeadingDot() {
+        // ".gigya.com" yields an empty first segment → fallback
+        MtlsConfig config = MtlsConfig.fromPem(TEST_CERT_PEM, TEST_KEY_PEM);
+        GSAuthMtlsRequest request = new GSAuthMtlsRequest(TEST_API_KEY, TEST_API_METHOD, config);
+        request.setAPIDomain(".gigya.com");
+        assertEquals("mtls.us1.gigya.com", request.getMtlsDomain());
+    }
+
 }
 

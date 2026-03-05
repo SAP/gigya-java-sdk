@@ -36,40 +36,31 @@ public class GSAuthMtlsRequest extends GSRequest {
         }
         this.mtlsConfig = mtlsConfig;
         mtlsConfig.validate();
-        // mTLS requests must always use accounts.gigya.com as the host
-        setHostOverride("accounts.gigya.com");
     }
 
     /**
-     * Prevent users from overriding the host for mTLS requests.
-     * mTLS requests must always use accounts.gigya.com
+     * Derives the mTLS host from the configured API domain.
+     * Extracts the datacenter (first segment before the first dot) and returns
+     * {@code mtls.{datacenter}.gigya.com}.
+     * Falls back to {@code mtls.us1.gigya.com} when the domain is unset or has no dot.
      */
-    @Override
-    public void setHostOverride(String host) {
-        // Only allow setting to accounts.gigya.com, ignore all other attempts
-        if (!"accounts.gigya.com".equals(host)) {
-            logger.write("GSAuthMtlsRequest", "Warning: Cannot override host for mTLS requests. Host must be accounts.gigya.com");
-            return;
-        }
-        super.setHostOverride(host);
+    String getMtlsDomain() {
+        String datacenter = apiDomain.split("\\.", 2)[0];
+        if (datacenter.isEmpty()) return "mtls.us1.gigya.com";
+        return "mtls." + datacenter + ".gigya.com";
     }
 
     /**
-     * Override send to prevent _host parameter from overriding the host.
-     * Always remove _host parameter and ensure host is accounts.gigya.com
+     * Override send to route through the datacenter-specific mTLS endpoint.
+     * Removes any {@code _host} parameter and sets the host override to
+     * {@code mtls.{datacenter}.gigya.com} derived from the configured API domain.
      */
     @Override
     public com.gigya.socialize.GSResponse send(int timeoutMS) {
-        // Remove _host parameter if user tries to use it
-        if (params.containsKey("_host")) {
-            String attemptedHost = params.getString("_host", "");
-            if (!"accounts.gigya.com".equals(attemptedHost)) {
-                logger.write("GSAuthMtlsRequest", "Warning: Cannot override host via _host parameter for mTLS requests. Host must be accounts.gigya.com");
-            }
-            params.remove("_host");
-        }
-        // Ensure hostOverride is set to accounts.gigya.com
-        super.setHostOverride("accounts.gigya.com");
+        // Prevent _host parameter from overriding the mTLS host
+        params.remove("_host");
+        // Route to the datacenter-specific mTLS endpoint
+        super.setHostOverride(getMtlsDomain());
         return super.send(timeoutMS);
     }
 
