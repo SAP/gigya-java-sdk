@@ -1,0 +1,10 @@
+version = 1
+SPDX-PackageName = "gigya-java-sdk"
+SPDX-PackageSupplier = "Kobi Cohen <kobi.cohen@sap.com>"
+SPDX-PackageDownloadLocation = "https://github.com/SAP/gigya-java-sdk"
+
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 SAP SE or an SAP affiliate company"
+SPDX-License-Identifier = "Apache-2.0"
